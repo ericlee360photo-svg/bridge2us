@@ -13,8 +13,8 @@ export function buildDots(opts: {
   const { spacing = 12, radius = 2.2, width, height, landOnly = true } = opts;
 
   // Extract GeoJSON land MultiPolygon from TopoJSON
-  // @ts-ignore – depends on your topo file’s object names
-  const landGeo = feature(worldTopo as any, (worldTopo as any).objects.land) as any;
+  // @ts-expect-error – depends on your topo file's object names
+  const landGeo = feature(worldTopo as unknown, (worldTopo as unknown).objects.land) as unknown;
 
   const dots: { x: number; y: number }[] = [];
   for (let y = spacing / 2; y < height; y += spacing) {

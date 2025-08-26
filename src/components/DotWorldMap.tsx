@@ -16,7 +16,7 @@ type Props = {
   className?: string;
 };
 
-export default function DotWorldMap({
+function DotWorldMapComponent({
   a, b,
   showOceanDots = true,
   spacing = 12,
@@ -55,8 +55,7 @@ export default function DotWorldMap({
         height: "auto",
         aspectRatio: "2 / 1",
         borderRadius: 16,
-        position: "relative",
-        zIndex: 1
+        position: "relative"
       }}
       preserveAspectRatio="xMidYMid meet"
     >
@@ -126,3 +125,5 @@ export default function DotWorldMap({
     </svg>
   );
 }
+
+export default React.memo(DotWorldMapComponent);

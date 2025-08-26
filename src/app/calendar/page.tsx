@@ -41,8 +41,7 @@ interface Relationship {
 export default function CalendarPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [loading, setLoading] = useState(true);
-  const [relationships, setRelationships] = useState<Relationship[]>([]);
+
   const [selectedRelationship, setSelectedRelationship] = useState<Relationship | null>(null);
 
   // Mock user ID - in real app, this would come from authentication

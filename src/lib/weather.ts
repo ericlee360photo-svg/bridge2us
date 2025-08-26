@@ -76,9 +76,7 @@ function kmhToMph(kmh: number): number {
   return kmh * 0.621371;
 }
 
-function mmToInches(mm: number): number {
-  return mm * 0.0393701;
-}
+
 
 export async function getWeatherByCity(city: string, country?: string, preferences?: UserPreferences): Promise<WeatherData> {
   try {

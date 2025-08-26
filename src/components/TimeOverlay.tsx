@@ -13,30 +13,17 @@ interface TimeOverlayProps {
 
 export default function TimeOverlay({ position, title, timezone, location, isPartner = false }: TimeOverlayProps) {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 60000); // Update every minute instead of every second
 
     return () => clearInterval(timer);
   }, []);
 
-  if (!mounted) {
-    return (
-      <div className={`absolute ${position} rounded-lg p-3 text-blue-400 z-50 pointer-events-none`}>
-        <div className="text-sm font-semibold">{title}</div>
-        <div className="text-lg font-bold">--:--</div>
-        <div className="text-xs opacity-80">-- --- ----</div>
-        <div className="text-xs opacity-80">{location}</div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`absolute ${position} rounded-lg p-3 text-blue-400 z-50 pointer-events-none`}>
+    <div className={`absolute ${position} rounded-lg p-3 text-blue-400 z-[10000] pointer-events-none`}>
       <div className="text-sm font-semibold">{title}</div>
       <div className="text-lg font-bold">
         {isPartner 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+
 import { Settings, Thermometer, Ruler, Globe } from "lucide-react";
 
 interface UserPreferencesProps {

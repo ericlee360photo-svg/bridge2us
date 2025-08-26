@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar, Clock, Settings } from "lucide-react";
+import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar } from "lucide-react";
 import ProfilePictureUpload from "@/components/ProfilePictureUpload";
 
 interface SignupData {
@@ -72,7 +72,7 @@ export default function SignupPage() {
     distanceUnit: "mi"
   });
 
-  const updateField = (field: keyof SignupData, value: any) => {
+  const updateField = (field: keyof SignupData, value: string | boolean) => {
     setSignupData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -170,7 +170,7 @@ export default function SignupPage() {
   const renderStep1 = () => (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Create Your Account</h2>
-      <p className="text-gray-600 dark:text-gray-300">Let's start with your basic information</p>
+      <p className="text-gray-600 dark:text-gray-300">Let&apos;s start with your basic information</p>
       
       <div className="space-y-4">
         <div>
@@ -441,7 +441,7 @@ export default function SignupPage() {
             <option value="">Select communication style</option>
             <option value="Daily calls">Daily calls</option>
             <option value="Text often">Text often</option>
-            <option value="Video calls">Video calls</option>
+            
             <option value="Mix of everything">Mix of everything</option>
           </select>
         </div>

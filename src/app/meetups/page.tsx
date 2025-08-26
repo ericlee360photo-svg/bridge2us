@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MapPin, Calendar, Clock, Plus, Heart, Plane, Hotel, Utensils } from "lucide-react";
+import { MapPin, Calendar, Plus, Heart, Plane, Hotel, Utensils } from "lucide-react";
 import { getTimeUntil, formatDate } from "@/lib/utils";
 
 interface Meetup {
@@ -24,7 +24,7 @@ interface Meetup {
 
 export default function MeetupsPage() {
   const [meetups, setMeetups] = useState<Meetup[]>([]);
-  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     fetchMeetups();
@@ -54,15 +54,7 @@ export default function MeetupsPage() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'PLANNED': return Calendar;
-      case 'CONFIRMED': return Heart;
-      case 'CANCELLED': return '❌';
-      case 'COMPLETED': return '✅';
-      default: return Calendar;
-    }
-  };
+
 
   const upcomingMeetups = meetups.filter(meetup => 
     new Date(meetup.startDate) > new Date() && meetup.status !== 'CANCELLED'

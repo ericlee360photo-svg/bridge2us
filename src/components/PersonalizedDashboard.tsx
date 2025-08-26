@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Heart, Calendar, Clock, MapPin, Users, Settings, Cloud, Sun, CloudRain, CloudSnow, MessageCircle, Video, User, Gift, Camera, Star } from "lucide-react";
+import { Heart, Calendar, MessageCircle, User, Gift } from "lucide-react";
 import { getTimeUntil, getPartnerCurrentTime, formatInTimezone } from "@/lib/utils";
 import { getWeatherIcon, getWeatherConditionName, WeatherData } from "@/lib/weather";
 import DotWorldMap from "@/components/DotWorldMap";
@@ -93,7 +93,7 @@ export default function PersonalizedDashboard({ user, partner }: PersonalizedDas
           const data = await res.json();
           setWeather(data as WeatherData);
         }
-      } catch (e) {
+      } catch {
         // noop - widget will show fallback
       }
     };
@@ -113,7 +113,7 @@ export default function PersonalizedDashboard({ user, partner }: PersonalizedDas
 
   const quickActions = [
     { icon: MessageCircle, label: "Send Message", href: "#", color: "bg-blue-500" },
-    { icon: Video, label: "Video Call", href: "#", color: "bg-green-500" },
+    
     { icon: Calendar, label: "Plan Meetup", href: "/meetups", color: "bg-purple-500" },
     { icon: Gift, label: "Send Gift", href: "#", color: "bg-pink-500" },
   ];
@@ -122,12 +122,12 @@ export default function PersonalizedDashboard({ user, partner }: PersonalizedDas
     { label: "Days Together", value: "365", icon: Heart },
     { label: "Meetups", value: "8", icon: Calendar },
     { label: "Messages", value: "1,247", icon: MessageCircle },
-    { label: "Video Calls", value: "156", icon: Video },
+    
   ];
 
   const recentActivity = [
     { type: "message", content: "Sent a message", time: "2 min ago", icon: MessageCircle },
-    { type: "call", content: "Video call ended", time: "1 hour ago", icon: Video },
+    
     { type: "meetup", content: "Planned next meetup", time: "3 hours ago", icon: Calendar },
     { type: "gift", content: "Received a gift", time: "1 day ago", icon: Gift },
   ];

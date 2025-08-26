@@ -1,27 +1,42 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Heart, Calendar, Clock, MapPin, Users, Cloud, Sun, CloudRain, CloudSnow, MessageCircle, Video } from "lucide-react";
-import { getTimeUntil, getPartnerCurrentTime, formatInTimezone } from "@/lib/utils";
+import { Heart, Calendar, Clock, MapPin, Users, MessageCircle, X } from "lucide-react";
+import { getTimeUntil } from "@/lib/utils";
+import { haversineKm, kmToMi } from "@/lib/geo";
 import DotWorldMap from "@/components/DotWorldMap";
 import TimeOverlay from "@/components/TimeOverlay";
 import MapColorSettings from "@/components/MapColorSettings";
+import CalendarImport from "@/components/CalendarImport";
 import PersonalizedDashboard from "@/components/PersonalizedDashboard";
+import PartnerTimeWidget from "@/components/PartnerTimeWidget";
 
 export default function HomePage() {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [partnerTime, setPartnerTime] = useState(new Date());
   const [locationSaved, setLocationSaved] = useState(false);
+  const [showMeetupModal, setShowMeetupModal] = useState(false);
+  const [meetupForm, setMeetupForm] = useState({
+    date: '',
+    time: '',
+    location: '',
+    travelType: 'both', // 'both', 'you', 'partner'
+    description: '',
+    duration: 1
+  });
   const [weather, setWeather] = useState({
     temperature: 72,
     condition: "sunny",
-    location: "New York, NY"
+    location: "New York, NY",
+    description: "clear sky",
+    icon: "☀️",
+    humidity: 65,
+    windSpeed: 12
   });
   
   // Check if user is authenticated (mock for now)
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [partner, setPartner] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; firstName: string; lastName: string; email: string } | null>(null);
+  const [partner, setPartner] = useState<{ id: string; firstName: string; lastName: string; timezone: string; isAwake: boolean; currentActivity: string } | null>(null);
   
   // Mock data - replace with real data from your backend
   const nextMeetup = useMemo(() => new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), []); // 15 days from now
@@ -30,7 +45,8 @@ export default function HomePage() {
 
   // User location state
   const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
-  const [partnerLocation, setPartnerLocation] = useState<{lat: number, lon: number}>({
+  const [homeLocation, setHomeLocation] = useState<{lat: number, lon: number} | null>(null);
+  const [partnerLocation] = useState<{lat: number, lon: number}>({
     lat: 40.7128, // New York (partner's location)
     lon: -74.0060
   });
@@ -41,14 +57,22 @@ export default function HomePage() {
     oceanColor: 'rgba(42,47,58,.55)'
   });
 
-  // Load saved user location or home location on mount
+  // Load saved user location and home location on mount
   useEffect(() => {
     const savedLocation = localStorage.getItem('userLocation');
     const savedHome = localStorage.getItem('homeLocation');
+    
     if (savedLocation) {
       setUserLocation(JSON.parse(savedLocation));
-    } else if (savedHome) {
-      setUserLocation(JSON.parse(savedHome));
+    }
+    
+    if (savedHome) {
+      setHomeLocation(JSON.parse(savedHome));
+    } else {
+      // Set default home location if none exists
+      const defaultHome = { lat: 37.7749, lon: -122.4194 }; // San Francisco
+      setHomeLocation(defaultHome);
+      localStorage.setItem('homeLocation', JSON.stringify(defaultHome));
     }
   }, []);
 
@@ -76,27 +100,39 @@ export default function HomePage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown(getTimeUntil(nextMeetup));
-      setPartnerTime(getPartnerCurrentTime(partnerTimezone));
+      // setPartnerTime(getPartnerCurrentTime(partnerTimezone)); // This line is removed
     }, 1000);
 
     return () => clearInterval(timer);
   }, [nextMeetup, partnerTimezone]);
 
-  const getWeatherIcon = (condition: string) => {
-    switch (condition.toLowerCase()) {
-      case 'sunny':
-      case 'clear':
-        return <Sun className="w-6 h-6 text-yellow-500" />;
-      case 'rainy':
-      case 'rain':
-        return <CloudRain className="w-6 h-6 text-blue-500" />;
-      case 'snowy':
-      case 'snow':
-        return <CloudSnow className="w-6 h-6 text-blue-300" />;
-      default:
-        return <Cloud className="w-6 h-6 text-gray-500" />;
-    }
-  };
+  // Fetch weather data for partner's location
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch(`/api/weather?lat=${partnerLocation.lat}&lon=${partnerLocation.lon}&measurementSystem=imperial&temperatureUnit=fahrenheit&distanceUnit=mi`);
+        if (response.ok) {
+          const weatherData = await response.json();
+          setWeather({
+            temperature: weatherData.temperature,
+            condition: weatherData.condition,
+            location: weatherData.location,
+            description: weatherData.description,
+            icon: weatherData.icon,
+            humidity: weatherData.humidity,
+            windSpeed: weatherData.windSpeed
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching weather:', error);
+        // Keep default weather data if API fails
+      }
+    };
+
+    fetchWeather();
+  }, [partnerLocation]);
+
+
 
   const quickActions = [
     {
@@ -104,11 +140,7 @@ export default function HomePage() {
       title: "Send Message",
       color: "bg-blue-500 hover:bg-blue-600"
     },
-    {
-      icon: Video,
-      title: "Video Call",
-      color: "bg-green-500 hover:bg-green-600"
-    },
+
     {
       icon: Calendar,
       title: "Add Event",
@@ -175,19 +207,24 @@ export default function HomePage() {
         <div className="mb-6">
           <div className="relative">
                       <DotWorldMap 
-            a={userLocation || { lat: 37.7749, lon: -122.4194 }} // Use saved location or default to SF
+            key={`map-${userLocation?.lat || homeLocation?.lat}-${userLocation?.lon || homeLocation?.lon}-${partnerLocation.lat}-${partnerLocation.lon}`}
+            a={userLocation || homeLocation || { lat: 37.7749, lon: -122.4194 }} // Use current location, then home location, then default
             b={partnerLocation}
-            label="both"
+            label="mi"
             className="w-full"
             landColor={mapColors.landColor}
             oceanColor={mapColors.oceanColor}
           />
-            {/* Floating buttons (inside map container) */}
-            <div className="absolute top-2 right-2 z-[10000] flex gap-2">
+            {/* Map Colors Button - Top Left */}
+            <div className="absolute top-2 left-2 z-[10000]">
               <MapColorSettings 
                 onColorsChange={setMapColors}
                 className="pointer-events-auto"
               />
+            </div>
+            
+            {/* Location Button - Top Right */}
+            <div className="absolute top-2 right-2 z-[10000]">
               <button
                 onClick={() => {
                   if (navigator.geolocation) {
@@ -202,7 +239,28 @@ export default function HomePage() {
                       },
                       (error) => {
                         console.error('Error getting location:', error);
-                        alert('Unable to get your location. Please check your browser settings.');
+                        let errorMessage = 'Unable to get your location. ';
+                        
+                        switch (error.code) {
+                          case error.PERMISSION_DENIED:
+                            errorMessage += 'Location permission was denied. Please allow location access in your browser settings.';
+                            break;
+                          case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Location information is unavailable. Please try again.';
+                            break;
+                          case error.TIMEOUT:
+                            errorMessage += 'Location request timed out. Please try again.';
+                            break;
+                          default:
+                            errorMessage += 'Please check your browser settings and try again.';
+                        }
+                        
+                        alert(errorMessage);
+                      },
+                      {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
                       }
                     );
                   } else {
@@ -211,7 +269,7 @@ export default function HomePage() {
                 }}
                 className="bg-pink-500 hover:bg-pink-600 text-white px-2 py-1.5 rounded-md shadow-md transition-colors pointer-events-auto text-sm"
               >
-                {locationSaved ? 'Saved ✓' : (userLocation ? 'Update Location' : 'Use Current Location')}
+                {locationSaved ? 'Saved ✓' : (userLocation ? 'Update Location' : 'Set Current Location')}
               </button>
             </div>
             
@@ -220,7 +278,7 @@ export default function HomePage() {
               position="bottom-4 left-4"
               title="My Time"
               timezone="America/Los_Angeles"
-              location={userLocation ? 'Current Location, Country' : 'San Francisco, USA'}
+              location={userLocation ? 'Current Location' : (homeLocation ? 'Home Location' : 'San Francisco, USA')}
             />
             
             <TimeOverlay 
@@ -230,6 +288,24 @@ export default function HomePage() {
               location="New York, USA"
               isPartner={true}
             />
+            
+            {/* Distance Display - Center Bottom */}
+            {partnerLocation && (userLocation || homeLocation) && (
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-[10000] pointer-events-none">
+                <div className="bg-transparent backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 px-4 py-3 text-center min-w-[120px]">
+                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                    Distance
+                  </div>
+                  <div className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                    {(() => {
+                      const userCoords = userLocation || homeLocation;
+                      const distance = Math.round(kmToMi(haversineKm([userCoords!.lon, userCoords!.lat], [partnerLocation.lon, partnerLocation.lat])));
+                      return `${distance.toLocaleString()} mi`;
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -269,32 +345,26 @@ export default function HomePage() {
                 <div className="text-xs text-gray-500 dark:text-gray-400">S</div>
               </div>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-4">
               {nextMeetup.toLocaleDateString('en-US', { 
                 month: 'short', 
                 day: 'numeric',
                 year: 'numeric'
               })}
             </p>
+            <button
+              onClick={() => setShowMeetupModal(true)}
+              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 text-sm font-medium"
+            >
+              Plan Meetup
+            </button>
           </div>
 
           {/* Partner Time Widget */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
-            <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
-              {partnerName}&apos;s Time
-            </h2>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-1">
-                {formatInTimezone(partnerTime, partnerTimezone, "HH:mm")}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">
-                {formatInTimezone(partnerTime, partnerTimezone, "MMM d")}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {partnerTimezone.replace('_', ' ')}
-              </div>
-            </div>
-          </div>
+          <PartnerTimeWidget 
+            partnerName={partnerName}
+            partnerTimezone={partnerTimezone}
+          />
         </div>
 
         {/* Second Row - Weather and Quick Actions */}
@@ -317,7 +387,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div>
-                {getWeatherIcon(weather.condition)}
+                <span className="text-4xl">{weather.icon}</span>
               </div>
             </div>
           </div>
@@ -327,7 +397,7 @@ export default function HomePage() {
             <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
               Quick Actions
             </h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 mb-4">
               {quickActions.map((action) => (
                 <button
                   key={action.title}
@@ -337,6 +407,16 @@ export default function HomePage() {
                   <span className="text-sm font-medium">{action.title}</span>
                 </button>
               ))}
+            </div>
+            
+            {/* Calendar Import */}
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <CalendarImport 
+                onImportSuccess={(data) => {
+                  console.log('Calendar imported:', data);
+                  // Handle calendar import success
+                }}
+              />
             </div>
           </div>
         </div>
@@ -392,7 +472,7 @@ export default function HomePage() {
                 • Last message: 2 hours ago
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-300">
-                • Video call: Yesterday
+      
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-300">
                 • Event added: 3 days ago
@@ -418,6 +498,149 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Meetup Planning Modal */}
+      {showMeetupModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                  Plan Meetup
+                </h2>
+                <button
+                  onClick={() => setShowMeetupModal(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form className="space-y-4" onSubmit={(e) => {
+                e.preventDefault();
+                // Handle meetup creation here
+                console.log('Meetup planned:', meetupForm);
+                alert('Meetup planned successfully!');
+                setShowMeetupModal(false);
+                setMeetupForm({
+                  date: '',
+                  time: '',
+                  location: '',
+                  travelType: 'both',
+                  description: '',
+                  duration: 1
+                });
+              }}>
+                {/* Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={meetupForm.date}
+                    onChange={(e) => setMeetupForm(prev => ({ ...prev, date: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    required
+                  />
+                </div>
+
+                {/* Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Time
+                  </label>
+                  <input
+                    type="time"
+                    value={meetupForm.time}
+                    onChange={(e) => setMeetupForm(prev => ({ ...prev, time: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    required
+                  />
+                </div>
+
+                {/* Location */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={meetupForm.location}
+                    onChange={(e) => setMeetupForm(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="City, Country or specific venue"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    required
+                  />
+                </div>
+
+                {/* Travel Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Who is traveling?
+                  </label>
+                  <select
+                    value={meetupForm.travelType}
+                    onChange={(e) => setMeetupForm(prev => ({ ...prev, travelType: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="both">Both partners</option>
+                    <option value="you">You travel to partner</option>
+                    <option value="partner">Partner travels to you</option>
+                  </select>
+                </div>
+
+                {/* Duration */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Duration (days)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={meetupForm.duration}
+                    onChange={(e) => setMeetupForm(prev => ({ ...prev, duration: parseInt(e.target.value) || 1 }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    required
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={meetupForm.description}
+                    onChange={(e) => setMeetupForm(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="What are your plans? Any special activities?"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowMeetupModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 font-medium"
+                  >
+                    Plan Meetup
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

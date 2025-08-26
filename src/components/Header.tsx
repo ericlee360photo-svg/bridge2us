@@ -16,7 +16,7 @@ export default function Header({ isAuthenticated = false, userName }: HeaderProp
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [authStatus, setAuthStatus] = useState({ isAuthenticated: false, userName: '', userId: '' });
   const [tokenBalance, setTokenBalance] = useState<TokenBalance | null>(null);
-  const router = useRouter();
+
 
   // Check authentication status on mount
   useEffect(() => {
@@ -82,12 +82,7 @@ export default function Header({ isAuthenticated = false, userName }: HeaderProp
                 >
                   Calendar
                 </Link>
-                <Link 
-                  href="/timezone" 
-                  className="text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
-                >
-                  Time Zones
-                </Link>
+
                 <Link 
                   href="/meetups" 
                   className="text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
@@ -190,13 +185,7 @@ export default function Header({ isAuthenticated = false, userName }: HeaderProp
                   >
                     Calendar
                   </Link>
-                  <Link
-                    href="/timezone"
-                    className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Time Zones
-                  </Link>
+
                   <Link
                     href="/meetups"
                     className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
