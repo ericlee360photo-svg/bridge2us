@@ -1,0 +1,68 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
+    "submit": "Submit",
+    "edit": "Edit",
+    "delete": "Delete",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "signup": "Sign Up",
+    "signin": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "createAccount": "Create Your Account",
+    "basicInfo": "Let's start with your basic information",
+    "profileDetails": "Profile Details",
+    "tellUsMore": "Tell us a bit more about yourself",
+    "dailySchedule": "Daily Schedule",
+    "helpUsUnderstand": "Help us understand your routine",
+    "relationshipQuestions": "Relationship Questions",
+    "aboutYourRelationship": "Tell us about your relationship",
+    "partnerInvitation": "Partner Invitation",
+    "inviteYourPartner": "Invite your partner to join"
+  },
+  "profile": {
+    "profilePicture": "Profile Picture",
+    "birthday": "Birthday",
+    "address": "Address (Optional)",
+    "addressPlaceholder": "Your address (kept private by default)",
+    "shareAddress": "Share my address with my partner",
+    "country": "Country",
+    "language": "Language",
+    "selectCountry": "Select your country",
+    "selectLanguage": "Select your language"
+  },
+  "schedule": {
+    "wakeUpTime": "Wake Up Time",
+    "bedTime": "Bed Time",
+    "workStartTime": "Work Start Time",
+    "workEndTime": "Work End Time",
+    "gymTime": "Gym Time",
+    "schoolTime": "School Time"
+  },
+  "relationship": {
+    "howLongTogether": "How long have you been together?",
+    "relationshipType": "What type of relationship do you have?",
+    "communicationStyle": "How do you prefer to communicate?",
+    "loveLanguages": "What are your love languages?",
+    "futurePlans": "What are your future plans together?"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "nextMeetup": "Next Meetup",
+    "partnerTime": "Partner's Time",
+    "weather": "Weather",
+    "quickActions": "Quick Actions",
+    "stats": "Relationship Stats",
+    "recentActivity": "Recent Activity",
+    "upcomingEvents": "Upcoming Events"
+  }
+}

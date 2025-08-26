@@ -1,0 +1,68 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "submit": "Enviar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "auth": {
+    "signup": "Registrarse",
+    "signin": "Iniciar Sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "createAccount": "Crear tu cuenta",
+    "basicInfo": "Comencemos con tu información básica",
+    "profileDetails": "Detalles del perfil",
+    "tellUsMore": "Cuéntanos un poco más sobre ti",
+    "dailySchedule": "Horario diario",
+    "helpUsUnderstand": "Ayúdanos a entender tu rutina",
+    "relationshipQuestions": "Preguntas sobre la relación",
+    "aboutYourRelationship": "Cuéntanos sobre tu relación",
+    "partnerInvitation": "Invitación a la pareja",
+    "inviteYourPartner": "Invita a tu pareja a unirse"
+  },
+  "profile": {
+    "profilePicture": "Foto de perfil",
+    "birthday": "Fecha de nacimiento",
+    "address": "Dirección (Opcional)",
+    "addressPlaceholder": "Tu dirección (privada por defecto)",
+    "shareAddress": "Compartir mi dirección con mi pareja",
+    "country": "País",
+    "language": "Idioma",
+    "selectCountry": "Selecciona tu país",
+    "selectLanguage": "Selecciona tu idioma"
+  },
+  "schedule": {
+    "wakeUpTime": "Hora de despertar",
+    "bedTime": "Hora de dormir",
+    "workStartTime": "Hora de inicio del trabajo",
+    "workEndTime": "Hora de fin del trabajo",
+    "gymTime": "Hora del gimnasio",
+    "schoolTime": "Hora de la escuela"
+  },
+  "relationship": {
+    "howLongTogether": "¿Cuánto tiempo llevan juntos?",
+    "relationshipType": "¿Qué tipo de relación tienen?",
+    "communicationStyle": "¿Cómo prefieres comunicarte?",
+    "loveLanguages": "¿Cuáles son tus lenguajes del amor?",
+    "futurePlans": "¿Cuáles son sus planes futuros juntos?"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido de vuelta",
+    "nextMeetup": "Próximo encuentro",
+    "partnerTime": "Hora de tu pareja",
+    "weather": "Clima",
+    "quickActions": "Acciones rápidas",
+    "stats": "Estadísticas de la relación",
+    "recentActivity": "Actividad reciente",
+    "upcomingEvents": "Próximos eventos"
+  }
+}

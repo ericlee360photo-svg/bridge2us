@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  timezone  String   @default("UTC")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // OAuth information
+  googleId  String?  @unique
+  
+  // Profile information
+  avatar    String?  // URL to uploaded profile picture
+  bio       String?
+  
+  // Required profile information
+  address   String?  // Private by default
+  country   String?  // Country code (e.g., "US", "GB", "FR")
+  language  String?  // Language code (e.g., "en", "es", "fr")
+  latitude  Float?   // GPS latitude for weather and map
+  longitude Float?   // GPS longitude for weather and map
+  birthday  DateTime?
+  isAddressPublic Boolean @default(false) // Only shared with partner if true
+  
+  // Schedule information
+  wakeUpTime    String? // Format: "07:00"
+  bedTime       String? // Format: "23:00"
+  workStartTime String? // Format: "09:00"
+  workEndTime   String? // Format: "17:00"
+  gymTime       String? // Format: "18:00"
+  schoolTime    String? // Format: "08:00"
+  
+  // Calendar integration
+  googleCalendarId    String?
+  outlookCalendarId   String?
+  appleCalendarId     String?
+  calendarSyncEnabled Boolean @default(false)
+  
+  // User preferences
+  measurementSystem  String @default("metric") // "metric" or "imperial"
+  temperatureUnit    String @default("celsius") // "celsius" or "fahrenheit"
+  distanceUnit       String @default("km") // "km" or "mi"
+  
+  // Email verification
+  emailVerified Boolean @default(false)
+  emailVerificationToken String?
+  emailVerificationExpires DateTime?
+  
+  // Relationship fields
+  relationshipsAsUser1 Relationship[] @relation("User1")
+  relationshipsAsUser2 Relationship[] @relation("User2")
+  
+  // Calendar events
+  events Event[]
+  
+  // Meetups
+  meetupsAsUser1 Meetup[] @relation("MeetupUser1")
+  meetupsAsUser2 Meetup[] @relation("MeetupUser2")
+
+  // Invitations
+  sentInvitations     Invitation[] @relation("InvitationSender")
+  receivedInvitations Invitation[] @relation("InvitationReceiver")
+
+  @@map("users")
+}
+
+model Relationship {
+  id        String   @id @default(cuid())
+  user1Id   String
+  user2Id   String
+  status    RelationshipStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationship questions and preferences
+  howLongTogether    String? // "6 months", "2 years", etc.
+  relationshipType   String? // "Dating", "Engaged", "Married", etc.
+  communicationStyle String? // "Daily calls", "Text often", etc.
+  loveLanguages      String? // "Words of affirmation", "Quality time", etc.
+  futurePlans        String? // "Moving in together", "Getting married", etc.
+
+  user1 User @relation("User1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2 User @relation("User2", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  // Ensure unique relationships
+  @@unique([user1Id, user2Id])
+  @@map("relationships")
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  senderId  String
+  receiverEmail String
+  token     String   @unique
+  status    InvitationStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sender   User @relation("InvitationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User? @relation("InvitationReceiver", fields: [receiverEmail], references: [email])
+
+  @@map("invitations")
+}
+
+model Meetup {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?
+  status      MeetupStatus @default(PLANNED)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationship to users
+  user1Id String
+  user2Id String
+  
+  user1 User @relation("MeetupUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2 User @relation("MeetupUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  @@map("meetups")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime?
+  allDay      Boolean  @default(false)
+  location    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Calendar source
+  calendarSource String? // "google", "outlook", "apple", "manual"
+  externalEventId String? // ID from external calendar
+
+  // User who owns this event
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("events")
+}
+
+enum RelationshipStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+}
+
+enum MeetupStatus {
+  PLANNED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
