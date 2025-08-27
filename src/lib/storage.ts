@@ -1,7 +1,7 @@
 import { prisma } from './prisma'
 
 // Determine if we should use localStorage (for demo) or database (for production)
-const useLocalStorage = () => {
+const shouldUseLocalStorage = () => {
   // Use localStorage for demo/development, database for production
   return typeof window !== 'undefined' && (
     window.location.hostname === 'localhost' || 
@@ -41,13 +41,13 @@ export interface UserSettings {
   horoscopeSharing: boolean
   shareHoroscope: boolean
   showHoroscope: boolean
-  weeklySchedule: any // Keep this flexible for now
+  weeklySchedule: Record<string, unknown> // Keep this flexible for now
 }
 
 export class DataStorage {
   // User Authentication
   static async getUser(): Promise<UserData | null> {
-    if (useLocalStorage()) {
+    if (shouldUseLocalStorage()) {
       const stored = localStorage.getItem('user')
       return stored ? JSON.parse(stored) : null
     }
@@ -58,7 +58,7 @@ export class DataStorage {
   }
 
   static async setUser(userData: UserData): Promise<void> {
-    if (useLocalStorage()) {
+    if (shouldUseLocalStorage()) {
       localStorage.setItem('user', JSON.stringify(userData))
       return
     }
@@ -94,7 +94,7 @@ export class DataStorage {
 
   // User Settings
   static async getUserSettings(userId: string): Promise<UserSettings | null> {
-    if (useLocalStorage()) {
+    if (shouldUseLocalStorage()) {
       const stored = localStorage.getItem('userSettings')
       return stored ? JSON.parse(stored) : null
     }
@@ -131,7 +131,7 @@ export class DataStorage {
   }
 
   static async setUserSettings(userId: string, settings: UserSettings): Promise<void> {
-    if (useLocalStorage()) {
+    if (shouldUseLocalStorage()) {
       localStorage.setItem('userSettings', JSON.stringify(settings))
       return
     }
@@ -160,7 +160,7 @@ export class DataStorage {
 
   // Location Data
   static async getUserLocation(userId: string): Promise<{lat: number, lon: number} | null> {
-    if (useLocalStorage()) {
+    if (shouldUseLocalStorage()) {
       const stored = localStorage.getItem('userLocation')
       return stored ? JSON.parse(stored) : null
     }
@@ -182,7 +182,7 @@ export class DataStorage {
   }
 
   static async setUserLocation(userId: string, location: {lat: number, lon: number}): Promise<void> {
-    if (useLocalStorage()) {
+    if (shouldUseLocalStorage()) {
       localStorage.setItem('userLocation', JSON.stringify(location))
       return
     }
@@ -202,8 +202,8 @@ export class DataStorage {
   }
 
   // Generic data storage for features like journal, horoscope, etc.
-  static async getData(key: string): Promise<any> {
-    if (useLocalStorage()) {
+  static async getData(key: string): Promise<unknown> {
+    if (shouldUseLocalStorage()) {
       const stored = localStorage.getItem(key)
       return stored ? JSON.parse(stored) : null
     }
@@ -213,8 +213,8 @@ export class DataStorage {
     return null
   }
 
-  static async setData(key: string, data: any): Promise<void> {
-    if (useLocalStorage()) {
+  static async setData(key: string, data: unknown): Promise<void> {
+    if (shouldUseLocalStorage()) {
       localStorage.setItem(key, JSON.stringify(data))
       return
     }
@@ -226,7 +226,7 @@ export class DataStorage {
 
   // Clear all data (for logout/account deletion)
   static async clearAll(): Promise<void> {
-    if (useLocalStorage()) {
+    if (shouldUseLocalStorage()) {
       localStorage.clear()
       return
     }

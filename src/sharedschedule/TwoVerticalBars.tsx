@@ -63,8 +63,8 @@ export default function TwoVerticalBars({
     dark:  lightDark?.dark  ?? [],
   });
 
-  let aLightDark = { light: [] as any[], dark: [] as any[] };
-  let bLightDark = { light: [] as any[], dark: [] as any[] };
+  let aLightDark = { light: [] as Array<{startMin: number, endMin: number}>, dark: [] as Array<{startMin: number, endMin: number}> };
+  let bLightDark = { light: [] as Array<{startMin: number, endMin: number}>, dark: [] as Array<{startMin: number, endMin: number}> };
   try {
     if (aLoc && Number.isFinite(aLoc.lat) && Number.isFinite(aLoc.lon)) {
       aLightDark = safeSegs(daylightSegmentsInAClock({

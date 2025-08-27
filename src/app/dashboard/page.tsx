@@ -426,7 +426,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Alex's Progress</h3>
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Alex&apos;s Progress</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400">
                     <span>Daily Tasks</span>
@@ -465,7 +465,7 @@ export default function DashboardPage() {
   };
 
   // User Settings Functions
-  const updateUserSetting = (key: keyof UserSettings, value: any) => {
+  const updateUserSetting = (key: keyof UserSettings, value: string | boolean | Record<string, unknown>) => {
     setUserSettings(prev => ({ ...prev, [key]: value }));
   };
 
@@ -1199,7 +1199,7 @@ export default function DashboardPage() {
                 <div className="border-t border-white border-opacity-20 pt-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm opacity-90 mb-1">Today's Horoscope</div>
+                      <div className="text-sm opacity-90 mb-1">Today&apos;s Horoscope</div>
                       <div className="text-lg font-bold">
                         {(() => {
                           const zodiacSign = getZodiacSign(partner.birthday);
@@ -1784,7 +1784,7 @@ export default function DashboardPage() {
                       ) : (
                         <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
                           <Grid className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-600 dark:text-gray-400">Click "Open Layout Editor" to customize your dashboard layout</p>
+                          <p className="text-gray-600 dark:text-gray-400">Click &quot;Open Layout Editor&quot; to customize your dashboard layout</p>
                         </div>
                       )}
                     </div>
@@ -1859,7 +1859,7 @@ export default function DashboardPage() {
                               <div className="space-y-4">
                                 <div>
                                   <label className="block text-sm font-medium text-red-700 dark:text-red-300 mb-2">
-                                    Type "delete my account" to confirm:
+                                    Type &quot;delete my account&quot; to confirm:
                                   </label>
                                   <input
                                     type="text"
