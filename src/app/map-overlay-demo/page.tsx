@@ -109,7 +109,7 @@ export default function MapOverlayDemo() {
           <ul className="text-gray-300 space-y-1">
             <li>• Cards should appear over NYC and Paris</li>
             <li>• Cards should remain visible for at least 60 seconds</li>
-            <li>• Toggle "Simulated Refetch" to test persistence during re-renders</li>
+            <li>• Toggle &quot;Simulated Refetch&quot; to test persistence during re-renders</li>
             <li>• Cards should not disappear or fade out</li>
             <li>• Cards should be clickable (pointer-events: auto)</li>
           </ul>

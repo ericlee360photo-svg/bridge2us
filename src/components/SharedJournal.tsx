@@ -79,7 +79,7 @@ export default function SharedJournal({
         userId: 'partner-default',
         userName: 'Alex',
         mood: 'excited',
-        content: "Just finished my morning workout! Feeling energized and ready to tackle the day. Can't wait to hear about your day too! 💪",
+        content: "Just finished my morning workout! Feeling energized and ready to tackle the day. Can&apos;t wait to hear about your day too! 💪",
         prompt: "What's the highlight of your day so far?",
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       },
@@ -97,7 +97,7 @@ export default function SharedJournal({
         userId: 'partner-default',
         userName: 'Alex',
         mood: 'happy',
-        content: "Had such a great conversation with my mom today. She asked about you and said she can't wait to meet you! Family approval feels amazing 😊",
+        content: "Had such a great conversation with my mom today. She asked about you and said she can&apos;t wait to meet you! Family approval feels amazing 😊",
         prompt: "What made you smile today?",
         timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
       },
@@ -106,7 +106,7 @@ export default function SharedJournal({
         userId: 'user-default',
         userName: 'You',
         mood: 'neutral',
-        content: "Work has been pretty busy today, but I'm managing. Looking forward to our video call tonight - that's what's keeping me going!",
+        content: "Work has been pretty busy today, but I&apos;m managing. Looking forward to our video call tonight - that&apos;s what&apos;s keeping me going!",
         prompt: "What's on your mind right now?",
         timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
       },
@@ -325,7 +325,7 @@ export default function SharedJournal({
           
           {selectedPrompt && (
             <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300">
-              "{selectedPrompt}"
+              &quot;{selectedPrompt}&quot;
             </div>
           )}
           
@@ -406,7 +406,7 @@ export default function SharedJournal({
               
               {entry.prompt && (
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 italic">
-                  "{entry.prompt}"
+                  &quot;{entry.prompt}&quot;
                 </div>
               )}
               

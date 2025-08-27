@@ -898,8 +898,8 @@ export default function DashboardPage() {
                 </button>
               </div>
               
-              {/* Time Overlays */}
-              <div className="absolute bottom-2 left-2 pointer-events-none">
+              {/* Time Overlays - Responsive Layout */}
+              <div className="absolute bottom-2 left-2 pointer-events-none hidden sm:block">
                 <TimeOverlay 
                   position=""
                   title="My Time"
@@ -909,7 +909,7 @@ export default function DashboardPage() {
                 />
               </div>
               
-              <div className="absolute bottom-2 right-2 pointer-events-none">
+              <div className="absolute bottom-2 right-2 pointer-events-none hidden sm:block">
                 <TimeOverlay 
                   position=""
                   title={`${partner?.firstName || 'Partner'}'s Time`}
@@ -920,7 +920,30 @@ export default function DashboardPage() {
                 />
               </div>
               
-              {/* Countdown Clock - Top Center */}
+              {/* Mobile Time Overlays - Stacked */}
+              <div className="absolute bottom-2 left-2 pointer-events-none sm:hidden space-y-2">
+                <div className="text-xs">
+                  <TimeOverlay 
+                    position=""
+                    title="My Time"
+                    timezone={user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
+                    location={userLocation ? 'Current Location' : (homeLocation ? 'Home Location' : 'San Francisco, USA')}
+                    textColor={mapColors.textColor}
+                  />
+                </div>
+                <div className="text-xs">
+                  <TimeOverlay 
+                    position=""
+                    title={`${partner?.firstName || 'Partner'}'s Time`}
+                    timezone={partner?.timezone || partnerTimezone}
+                    location="New York, USA"
+                    isPartner={true}
+                    textColor={mapColors.textColor}
+                  />
+                </div>
+              </div>
+              
+              {/* Countdown Clock - Top Center - Responsive */}
               <div className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none" style={{ top: '8px' }}>
                 <div 
                   style={{
@@ -933,28 +956,28 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center justify-center gap-1">
                     <div className="text-center">
-                      <div className="text-lg font-bold" style={{ color: mapColors.textColor }}>
+                      <div className="text-sm sm:text-lg font-bold" style={{ color: mapColors.textColor }}>
                         {countdown.days.toString().padStart(2, '0')}
                       </div>
                       <div className="text-xs" style={{ color: mapColors.textColor }}>D</div>
                     </div>
-                    <div className="text-lg font-bold" style={{ color: mapColors.textColor }}>:</div>
+                    <div className="text-sm sm:text-lg font-bold" style={{ color: mapColors.textColor }}>:</div>
                     <div className="text-center">
-                      <div className="text-lg font-bold" style={{ color: mapColors.textColor }}>
+                      <div className="text-sm sm:text-lg font-bold" style={{ color: mapColors.textColor }}>
                         {countdown.hours.toString().padStart(2, '0')}
                       </div>
                       <div className="text-xs" style={{ color: mapColors.textColor }}>H</div>
                     </div>
-                    <div className="text-lg font-bold" style={{ color: mapColors.textColor }}>:</div>
+                    <div className="text-sm sm:text-lg font-bold" style={{ color: mapColors.textColor }}>:</div>
                     <div className="text-center">
-                      <div className="text-lg font-bold" style={{ color: mapColors.textColor }}>
+                      <div className="text-sm sm:text-lg font-bold" style={{ color: mapColors.textColor }}>
                         {countdown.minutes.toString().padStart(2, '0')}
                       </div>
                       <div className="text-xs" style={{ color: mapColors.textColor }}>M</div>
                     </div>
-                    <div className="text-lg font-bold" style={{ color: mapColors.textColor }}>:</div>
+                    <div className="text-sm sm:text-lg font-bold" style={{ color: mapColors.textColor }}>:</div>
                     <div className="text-center">
-                      <div className="text-lg font-bold" style={{ color: mapColors.textColor }}>
+                      <div className="text-sm sm:text-lg font-bold" style={{ color: mapColors.textColor }}>
                         {countdown.seconds.toString().padStart(2, '0')}
                       </div>
                       <div className="text-xs" style={{ color: mapColors.textColor }}>S</div>
@@ -965,7 +988,7 @@ export default function DashboardPage() {
 
 
 
-              {/* Distance Display - Center Bottom */}
+              {/* Distance Display - Center Bottom - Responsive */}
               {partnerLocation && (userLocation || homeLocation) && (
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 pointer-events-none">
                   <div 
@@ -979,7 +1002,7 @@ export default function DashboardPage() {
                     <div className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: mapColors.textColor }}>
                       Distance
                     </div>
-                    <div className="text-xl font-bold" style={{ color: mapColors.textColor }}>
+                    <div className="text-lg sm:text-xl font-bold" style={{ color: mapColors.textColor }}>
                       {(() => {
                         const userCoords = userLocation || homeLocation;
                         const distance = Math.round(kmToMi(haversineKm([userCoords!.lon, userCoords!.lat], [partnerLocation.lon, partnerLocation.lat])));

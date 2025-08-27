@@ -30,7 +30,7 @@ export default function ScheduleDemo() {
     <div style={{ padding: 16, background:'#0f1115', minHeight:'100vh' }}>
       <h2 style={{ color:'#eaeef9', textAlign:'center' }}>Synced Schedule Demo</h2>
       <p style={{ color:'#9fb0d0', textAlign:'center', marginBottom: '24px' }}>
-        Two vertical bars showing 12a→12a of Partner A's timezone. Partner B's blocks are shifted to match.
+        Two vertical bars showing 12a→12a of Partner A&apos;s timezone. Partner B&apos;s blocks are shifted to match.
       </p>
       <TwoVerticalBars 
         date={date} 

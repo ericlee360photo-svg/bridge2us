@@ -4,7 +4,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./prisma";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  // Comment out adapter for now to use JWT sessions
+  // adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -18,71 +19,29 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (account?.provider === "google" && profile) {
-        // Check if user exists, if not create them
-        let dbUser = await prisma.user.findUnique({
-          where: { email: profile.email },
-        });
-
-        if (!dbUser) {
-          // Create new user with Google profile information
-          dbUser = await prisma.user.create({
-            data: {
-              email: profile.email,
-              firstName: profile.given_name || user.name?.split(' ')[0] || '',
-              lastName: profile.family_name || user.name?.split(' ').slice(1).join(' ') || '',
-              avatar: profile.picture,
-              googleId: profile.sub,
-              timezone: "UTC", // Default timezone
-              emailVerified: true, // Google accounts are pre-verified
-            },
-          });
-        } else {
-          // Update existing user with Google profile information
-          dbUser = await prisma.user.update({
-            where: { id: dbUser.id },
-            data: {
-              googleId: profile.sub,
-              firstName: profile.given_name || user.name?.split(' ')[0] || dbUser.firstName,
-              lastName: profile.family_name || user.name?.split(' ').slice(1).join(' ') || dbUser.lastName,
-              avatar: profile.picture,
-              emailVerified: true,
-            },
-          });
-        }
-
-        // Update the user object with database user data
-        user.id = dbUser.id;
-        user.firstName = dbUser.firstName;
-        user.lastName = dbUser.lastName;
-        user.avatar = dbUser.avatar;
-        user.googleId = dbUser.googleId;
-      }
+      // Simple sign in - just allow all Google users for now
       return true;
     },
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-        session.user.firstName = user.firstName;
-        session.user.lastName = user.lastName;
-        session.user.googleId = user.googleId;
-        session.user.avatar = user.avatar;
-        session.user.timezone = user.timezone;
-        session.user.country = user.country;
-        session.user.language = user.language;
+    async session({ session, token }) {
+      // Pass token data to session
+      if (session.user && token) {
+        session.user.id = token.sub || '';
+        session.user.firstName = token.given_name as string || token.name?.split(' ')[0] || '';
+        session.user.lastName = token.family_name as string || token.name?.split(' ').slice(1).join(' ') || '';
+        session.user.googleId = token.sub || '';
+        session.user.avatar = token.picture as string || '';
+        session.user.timezone = 'UTC';
+        session.user.country = '';
+        session.user.language = 'en';
       }
       return session;
     },
-    async jwt({ token, user, account }) {
-      if (user) {
-        token.id = user.id;
-        token.firstName = user.firstName;
-        token.lastName = user.lastName;
-        token.googleId = user.googleId;
-        token.avatar = user.avatar;
-        token.timezone = user.timezone;
-        token.country = user.country;
-        token.language = user.language;
+    async jwt({ token, user, account, profile }) {
+      // Store user data in JWT token
+      if (profile) {
+        token.given_name = profile.given_name;
+        token.family_name = profile.family_name;
+        token.picture = profile.picture;
       }
       if (account) {
         token.accessToken = account.access_token;

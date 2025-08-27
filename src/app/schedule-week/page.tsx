@@ -75,7 +75,7 @@ export default function ScheduleWeekDemo() {
     <div style={{ padding: 16, background:'#0f1115', minHeight:'100vh' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <h2 style={{ color:'#eaeef9', textAlign:'center', marginBottom: '24px' }}>
-          This Week's Schedule
+          This Week&apos;s Schedule
         </h2>
         <p style={{ color:'#9fb0d0', textAlign:'center', marginBottom: '32px' }}>
           Based on your usual week with any adjustments for this specific week.
