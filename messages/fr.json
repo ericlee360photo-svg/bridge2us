@@ -1,0 +1,38 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "next": "Suivant",
+    "back": "Retour",
+    "submit": "Soumettre",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "auth": {
+    "signup": "S'inscrire",
+    "signin": "Se connecter",
+    "email": "Email",
+    "password": "Mot de passe",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "createAccount": "Créer votre compte",
+    "basicInfo": "Commençons par vos informations de base",
+    "profileDetails": "Détails du profil",
+    "tellUsMore": "Parlez-nous un peu de vous",
+    "dailySchedule": "Programme quotidien",
+    "helpUsUnderstand": "Aidez-nous à comprendre votre routine",
+    "relationshipQuestions": "Questions sur la relation",
+    "aboutYourRelationship": "Parlez-nous de votre relation",
+    "partnerInvitation": "Invitation partenaire",
+    "inviteYourPartner": "Invitez votre partenaire à vous rejoindre"
+  },
+  "dashboard": {
+    "welcome": "Content de vous revoir",
+    "nextMeetup": "Prochaine rencontre",
+    "partnerTime": "Heure du partenaire",
+    "weather": "Météo"
+  }
+}

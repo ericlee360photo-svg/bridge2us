@@ -1,0 +1,29 @@
+{
+  "common": {
+    "loading": "読み込み中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "next": "次へ",
+    "back": "戻る",
+    "submit": "送信",
+    "edit": "編集",
+    "delete": "削除",
+    "yes": "はい",
+    "no": "いいえ"
+  },
+  "auth": {
+    "signup": "サインアップ",
+    "signin": "サインイン",
+    "email": "メール",
+    "password": "パスワード",
+    "firstName": "名前",
+    "lastName": "苗字",
+    "createAccount": "アカウント作成"
+  },
+  "dashboard": {
+    "welcome": "おかえりなさい",
+    "nextMeetup": "次の出会い",
+    "partnerTime": "パートナーの時間",
+    "weather": "天気"
+  }
+}

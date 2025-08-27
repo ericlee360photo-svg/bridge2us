@@ -1,0 +1,30 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "next": "Weiter",
+    "back": "Zurück",
+    "submit": "Absenden",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "auth": {
+    "signup": "Registrieren",
+    "signin": "Anmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "createAccount": "Konto erstellen",
+    "basicInfo": "Beginnen wir mit Ihren grundlegenden Informationen"
+  },
+  "dashboard": {
+    "welcome": "Willkommen zurück",
+    "nextMeetup": "Nächstes Treffen",
+    "partnerTime": "Partner-Zeit",
+    "weather": "Wetter"
+  }
+}
