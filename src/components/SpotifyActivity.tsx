@@ -21,7 +21,23 @@ interface SpotifyActivityProps {
 }
 
 export default function SpotifyActivity({ userId, partnerName }: SpotifyActivityProps) {
-  const [activity, setActivity] = useState<any>(null);
+  const [activity, setActivity] = useState<{
+    isPlaying: boolean;
+    currentTrack?: {
+      name: string;
+      artist: string;
+      album: string;
+      albumArt: string;
+    };
+    recentlyPlayed: Array<{
+      track: {
+        name: string;
+        artist: string;
+        album: string;
+        albumArt: string;
+      };
+    }>;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [lastFailedCheck, setLastFailedCheck] = useState<number>(0);
@@ -247,7 +263,7 @@ export default function SpotifyActivity({ userId, partnerName }: SpotifyActivity
             Recently Played
           </h4>
           <div className="space-y-2">
-            {activity.recentlyPlayed.slice(0, 3).map((item: any, index: number) => (
+            {activity.recentlyPlayed.slice(0, 3).map((item: { track: { name: string; artist: string; album: string; albumArt: string } }, index: number) => (
               <div key={index} className="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
                 <img 
                   src={item.track.albumArt} 

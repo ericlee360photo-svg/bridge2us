@@ -145,7 +145,7 @@ export default function PrivacyPolicyPage() {
 
             <section>
               <h3 className="text-xl font-semibold mb-4 text-pink-600 dark:text-pink-400">
-                8. Children's Privacy
+                8. Children&apos;s Privacy
               </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 Bridge2Us is not intended for children under 13. We do not knowingly collect personal 
@@ -171,7 +171,7 @@ export default function PrivacyPolicyPage() {
               </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 We may update this Privacy Policy from time to time. We will notify you of any material 
-                changes by posting the new policy on this page and updating the "Last Updated" date.
+                changes by posting the new policy on this page and updating the &quot;Last Updated&quot; date.
               </p>
             </section>
 

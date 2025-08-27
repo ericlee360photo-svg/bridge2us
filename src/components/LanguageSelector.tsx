@@ -132,7 +132,7 @@ export default function LanguageSelector({
               ))
             ) : (
               <div className="px-4 py-3 text-gray-500 dark:text-gray-400 text-sm">
-                No languages found matching "{searchTerm}"
+                No languages found matching &quot;{searchTerm}&quot;
               </div>
             )}
           </div>

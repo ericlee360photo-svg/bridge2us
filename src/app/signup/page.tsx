@@ -693,7 +693,7 @@ export default function SignupPage() {
               />
               <div>
                 <div className="font-medium text-gray-800 dark:text-gray-200">Send Email Invitation</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">We'll send an invitation email to your partner</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">We&apos;ll send an invitation email to your partner</div>
               </div>
             </label>
           </div>
@@ -731,7 +731,7 @@ export default function SignupPage() {
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Partner's Email Address
+                Partner&apos;s Email Address
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />

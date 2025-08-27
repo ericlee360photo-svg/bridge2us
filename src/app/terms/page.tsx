@@ -41,7 +41,7 @@ export default function TermsOfUsePage() {
                 1. Acceptance of Terms
               </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                By accessing and using Bridge2Us ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. 
+                By accessing and using Bridge2Us (&quot;the Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. 
                 If you do not agree to abide by the above, please do not use this service.
               </p>
             </section>
@@ -141,7 +141,7 @@ export default function TermsOfUsePage() {
                 8. Disclaimer of Warranties
               </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                The Service is provided on an "AS IS" and "AS AVAILABLE" basis. We make no representations 
+                The Service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis. We make no representations 
                 or warranties of any kind, express or implied, including but not limited to warranties of 
                 merchantability, fitness for a particular purpose, or non-infringement.
               </p>

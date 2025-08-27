@@ -465,7 +465,7 @@ export default function SharedJournal({
                   >
                     <option value="all">All Entries</option>
                     <option value="user">My Entries</option>
-                    <option value="partner">{partnerName}'s Entries</option>
+                    <option value="partner">{partnerName}&apos;s Entries</option>
                   </select>
                 </div>
 
@@ -544,7 +544,7 @@ export default function SharedJournal({
                       
                       {entry.prompt && entry.prompt !== "No Prompt - Free Writing" && (
                         <div className="text-sm text-gray-600 dark:text-gray-400 mb-2 italic bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                          "{entry.prompt}"
+                          &quot;{entry.prompt}&quot;
                         </div>
                       )}
                       

@@ -339,7 +339,7 @@ export default function CountrySelector({
               ))
             ) : (
               <div className="px-4 py-3 text-gray-500 dark:text-gray-400 text-sm">
-                No countries found matching "{searchTerm}"
+                No countries found matching &quot;{searchTerm}&quot;
               </div>
             )}
           </div>

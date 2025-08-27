@@ -18,7 +18,7 @@ export default function CalendarIntegration({
 }: CalendarIntegrationProps) {
   const [selectedCalendar, setSelectedCalendar] = useState<string>("");
   const [isConnecting, setIsConnecting] = useState(false);
-  const [syncData, setSyncData] = useState<any>(null);
+  const [syncData, setSyncData] = useState<{ overlappingFreeTimes: Array<{ start: string; end: string; title: string }> } | null>(null);
 
   const calendarProviders = [
     {
@@ -171,7 +171,7 @@ export default function CalendarIntegration({
           </div>
           
           <div className="space-y-2">
-            {syncData.overlappingFreeTimes.map((time: any, index: number) => (
+            {syncData.overlappingFreeTimes.map((time: { start: string; end: string; title: string }, index: number) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"

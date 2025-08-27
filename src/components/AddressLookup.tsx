@@ -33,11 +33,11 @@ export default function AddressLookup({
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Debounce function to limit API calls
-  const debounce = (func: Function, delay: number) => {
+  const debounce = (func: (...args: unknown[]) => void, delay: number) => {
     let timeoutId: NodeJS.Timeout;
-    return (...args: any[]) => {
+    return (...args: unknown[]) => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(null, args), delay);
+      timeoutId = setTimeout(() => func(...args), delay);
     };
   };
 
