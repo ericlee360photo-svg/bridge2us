@@ -1,6 +1,6 @@
 {
   "name": "bridge2us",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 3000",
@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.1",
     "@prisma/client": "^6.14.0",
     "@types/bcryptjs": "^2.4.6",
@@ -21,6 +24,7 @@
     "d3-geo": "^3.1.1",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
+    "dnd-kit": "^0.0.2",
     "googleapis": "^157.0.0",
     "lucide-react": "^0.541.0",
     "multer": "^2.0.2",
@@ -32,7 +36,7 @@
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
     "simple-peer": "^9.11.1",
-
+    "suncalc": "^1.9.0",
     "tailwind-merge": "^3.3.1",
     "topojson-client": "^3.1.0",
     "zod": "^4.1.1"
@@ -46,6 +50,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/suncalc": "^1.9.2",
     "@types/topojson-client": "^3.1.5",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",

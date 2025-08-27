@@ -150,14 +150,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       user: {
         id: user.id,
-        name: user.name,
+        name: `${user.firstName} ${user.lastName}`,
         timezone: user.timezone,
         schedule: userSchedule,
         calendarSyncEnabled: user.calendarSyncEnabled
       },
       partner: {
         id: partner.id,
-        name: partner.name,
+        name: `${partner.firstName} ${partner.lastName}`,
         timezone: partner.timezone,
         schedule: partnerSchedule,
         calendarSyncEnabled: partner.calendarSyncEnabled

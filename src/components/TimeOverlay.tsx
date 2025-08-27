@@ -9,9 +9,11 @@ interface TimeOverlayProps {
   timezone: string;
   location: string;
   isPartner?: boolean;
+  style?: React.CSSProperties;
+  textColor?: string;
 }
 
-export default function TimeOverlay({ position, title, timezone, location, isPartner = false }: TimeOverlayProps) {
+export default function TimeOverlay({ position, title, timezone, location, isPartner = false, style, textColor = '#3b82f6' }: TimeOverlayProps) {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
   useEffect(() => {
@@ -22,28 +24,30 @@ export default function TimeOverlay({ position, title, timezone, location, isPar
     return () => clearInterval(timer);
   }, []);
 
+  // Get the appropriate time based on timezone
+  const getDisplayTime = () => {
+    // Use the provided timezone for both user and partner
+    // The timezone prop should already be set correctly from the parent component
+    return formatInTimezone(currentTime, timezone, "hh:mm a");
+  };
+
+  const getDisplayDate = () => {
+    // Use the provided timezone for both user and partner
+    // The timezone prop should already be set correctly from the parent component
+    return formatInTimezone(currentTime, timezone, "dd MMM yyyy");
+  };
+
   return (
-    <div className={`absolute ${position} rounded-lg p-3 text-blue-400 z-[10000] pointer-events-none`}>
+    <div 
+      className="rounded-lg p-3 pointer-events-none"
+      style={{ ...style, color: textColor }}
+    >
       <div className="text-sm font-semibold">{title}</div>
       <div className="text-lg font-bold">
-        {isPartner 
-          ? formatInTimezone(currentTime, timezone, "hh:mm a")
-          : currentTime.toLocaleTimeString('en-US', { 
-              hour: '2-digit', 
-              minute: '2-digit',
-              hour12: true 
-            })
-        }
+        {getDisplayTime()}
       </div>
       <div className="text-xs opacity-80">
-        {isPartner 
-          ? formatInTimezone(currentTime, timezone, "dd MMM yyyy")
-          : currentTime.toLocaleDateString('en-US', { 
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric'
-            })
-        }
+        {getDisplayDate()}
       </div>
       <div className="text-xs opacity-80">{location}</div>
     </div>

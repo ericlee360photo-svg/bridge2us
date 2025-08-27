@@ -183,7 +183,10 @@ export default function PersonalizedDashboard({ user, partner }: PersonalizedDas
       {/* World Map */}
       {user2 && (
         <div className="mb-8">
-          <DotWorldMap user1={user1} user2={user2} />
+          <DotWorldMap 
+            a={{ lat: user1.latitude, lon: user1.longitude }} 
+            b={{ lat: user2.latitude, lon: user2.longitude }} 
+          />
         </div>
       )}
 

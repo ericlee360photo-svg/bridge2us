@@ -10,6 +10,8 @@ type Props = {
   spacing?: number;
   landColor?: string;
   oceanColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
   dotRadius?: number;
   linkColor?: string;
   label?: "km" | "mi" | "both";
@@ -22,6 +24,8 @@ function DotWorldMapComponent({
   spacing = 12,
   landColor = "#cfd6ff",
   oceanColor = "rgba(42,47,58,.55)",
+  backgroundColor = "#0f1115",
+  textColor = "#3b82f6",
   dotRadius = 2.2,
   linkColor = "#ff6b6b",
   label = "both",
@@ -50,12 +54,13 @@ function DotWorldMapComponent({
       viewBox={`0 0 ${worldWidth} ${worldHeight}`}
       className={className}
       style={{
-        background: "#0f1115",
+        background: backgroundColor,
         width: "100%",
         height: "auto",
         aspectRatio: "2 / 1",
         borderRadius: 16,
-        position: "relative"
+        position: "relative",
+        zIndex: 1
       }}
       preserveAspectRatio="xMidYMid meet"
     >
@@ -70,8 +75,7 @@ function DotWorldMapComponent({
       ))}
 
       {/* Connection arc */}
-      {path && <path d={path} stroke={linkColor} strokeWidth={5} fill="none"
-                     style={{ filter: "drop-shadow(0 0 6px rgba(255,107,107,.6))" }} />}
+      {path && <path d={path} stroke={linkColor} strokeWidth={5} fill="none" />}
 
       {/* User Markers with Labels */}
       {pA && <g transform={`translate(${pA[0]},${pA[1]})`}>

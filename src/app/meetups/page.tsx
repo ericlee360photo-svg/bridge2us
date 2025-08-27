@@ -24,6 +24,7 @@ interface Meetup {
 
 export default function MeetupsPage() {
   const [meetups, setMeetups] = useState<Meetup[]>([]);
+  const [loading, setLoading] = useState(false);
 
 
   useEffect(() => {

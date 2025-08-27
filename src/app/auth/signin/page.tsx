@@ -25,7 +25,7 @@ export default function SignInPage() {
         language: (session.user as any).language || ''
       };
       localStorage.setItem('user', JSON.stringify(userData));
-      router.push("/");
+      router.push("/dashboard");
     }
   }, [session, status, router]);
 
@@ -33,7 +33,7 @@ export default function SignInPage() {
     setIsLoading(true);
     try {
       console.log("Starting Google sign in...");
-      const result = await signIn("google", { callbackUrl: "/" });
+      const result = await signIn("google", { callbackUrl: "/dashboard" });
       console.log("Sign in result:", result);
       if (result?.error) {
         console.error("Sign in error:", result.error);

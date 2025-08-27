@@ -18,6 +18,9 @@ interface SignupData {
   address: string;
   isAddressPublic: boolean;
   avatar?: string;
+  timezone?: string;
+  country?: string;
+  language?: string;
   
   // Step 3: Schedule
   wakeUpTime: string;
@@ -33,6 +36,7 @@ interface SignupData {
   communicationStyle: string;
   loveLanguages: string;
   futurePlans: string;
+  partnerEmail: string;
   
   // Step 5: Preferences
   timeFormat: string; // "12h" or "24h"
@@ -156,7 +160,7 @@ export default function SignupPage() {
         localStorage.setItem('user', JSON.stringify(userData));
         
         alert(result.message);
-        router.push('/'); // Redirect to dashboard
+        router.push('/dashboard'); // Redirect to dashboard
       } else {
         const error = await response.json();
         alert(error.message || 'Signup failed');

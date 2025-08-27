@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
     const {
       email,
       password,
-      name,
+      firstName,
+      lastName,
       birthday,
       address,
       isAddressPublic,
@@ -28,9 +29,9 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!email || !password || !name || !birthday) {
+    if (!email || !password || !firstName || !birthday) {
       return NextResponse.json(
-        { error: 'Email, password, name, and birthday are required' },
+        { error: 'Email, password, firstName, and birthday are required' },
         { status: 400 }
       );
     }

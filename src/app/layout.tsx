@@ -69,6 +69,7 @@ export default function RootLayout({
             <Header />
             {children}
           </div>
+          <div id="overlay-root"></div>
         </Providers>
       </body>
     </html>

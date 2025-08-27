@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
         status: rel.status,
         partner: {
           id: partner.id,
-          name: partner.name,
+          name: `${partner.firstName} ${partner.lastName}`,
           email: partner.email,
           timezone: partner.timezone,
           calendarSyncEnabled: partner.calendarSyncEnabled,
