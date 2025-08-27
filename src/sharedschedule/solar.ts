@@ -34,8 +34,8 @@ export function daylightSegmentsInAClock(opts: {
   const ss = toAmins(times.sunset);
 
   // If sunrise/sunset reversed or far outside the window, detect polar day/night by sun altitude at local noon.
-  let light: Array<{startMin:number,endMin:number}> = [];
-  let dark:  Array<{startMin:number,endMin:number}> = [];
+  const light: Array<{startMin:number,endMin:number}> = [];
+  const dark:  Array<{startMin:number,endMin:number}> = [];
   const clip = (s:number,e:number) => ({startMin: Math.max(0,s), endMin: Math.min(1440,e)});
   if (Number.isFinite(sr) && Number.isFinite(ss) && sr < ss && ss - sr > 10) {
     // Night [0..sr), Day [sr..ss), Night (ss..1440)

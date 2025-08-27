@@ -5,6 +5,19 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Heart, ArrowRight } from "lucide-react";
 
+interface ExtendedUser {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  timezone?: string;
+  country?: string;
+  language?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 export default function SignInPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -14,15 +27,16 @@ export default function SignInPage() {
     // Check if user is already signed in
     if (status === "authenticated" && session?.user) {
       // Store user data in localStorage for our app
+      const extendedUser = session.user as ExtendedUser;
       const userData = {
-        id: (session.user as any).id || 'temp-id',
-        firstName: (session.user as any).firstName || session.user.name?.split(' ')[0] || '',
-        lastName: (session.user as any).lastName || session.user.name?.split(' ').slice(1).join(' ') || '',
+        id: extendedUser.id || 'temp-id',
+        firstName: extendedUser.firstName || session.user.name?.split(' ')[0] || '',
+        lastName: extendedUser.lastName || session.user.name?.split(' ').slice(1).join(' ') || '',
         email: session.user.email || '',
-        avatar: (session.user as any).avatar || session.user.image || '',
-        timezone: (session.user as any).timezone || "UTC",
-        country: (session.user as any).country || '',
-        language: (session.user as any).language || ''
+        avatar: extendedUser.avatar || session.user.image || '',
+        timezone: extendedUser.timezone || "UTC",
+        country: extendedUser.country || '',
+        language: extendedUser.language || ''
       };
       localStorage.setItem('user', JSON.stringify(userData));
       router.push("/dashboard");

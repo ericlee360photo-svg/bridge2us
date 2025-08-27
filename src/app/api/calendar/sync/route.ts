@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user's calendar integration
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       calendarSyncEnabled: true
     };
 
@@ -173,7 +173,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function calculateOverlappingFreeTimes(userSchedule: any, partnerSchedule: any) {
+function calculateOverlappingFreeTimes(userSchedule: Record<string, unknown>, partnerSchedule: Record<string, unknown>) {
   // This is a simplified calculation - in a real app, you'd want more sophisticated logic
   const freeTimes = [];
   
