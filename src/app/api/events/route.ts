@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,28 +8,33 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    const where: Record<string, unknown> = {};
+    let query = supabase
+      .from('events')
+      .select(`
+        *,
+        user:users(*)
+      `)
+      .order('start_time', { ascending: true });
     
     if (userId) {
-      where.userId = userId;
+      query = query.eq('user_id', userId);
     }
     
     if (startDate && endDate) {
-      where.startTime = {
-        gte: new Date(startDate),
-        lte: new Date(endDate)
-      };
+      query = query
+        .gte('start_time', new Date(startDate).toISOString())
+        .lte('start_time', new Date(endDate).toISOString());
     }
 
-    const events = await prisma.event.findMany({
-      where,
-      include: {
-        user: true
-      },
-      orderBy: {
-        startTime: 'asc'
-      }
-    });
+    const { data: events, error } = await query;
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch events' },
+        { status: 500 }
+      );
+    }
     
     return NextResponse.json(events);
   } catch (error) {
@@ -53,20 +58,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const event = await prisma.event.create({
-      data: {
+    const { data: event, error } = await supabase
+      .from('events')
+      .insert({
         title,
         description,
-        startTime: new Date(startTime),
-        endTime: endTime ? new Date(endTime) : null,
-        allDay: allDay || false,
+        start_time: new Date(startTime).toISOString(),
+        end_time: endTime ? new Date(endTime).toISOString() : null,
+        all_day: allDay || false,
         location,
-        userId
-      },
-      include: {
-        user: true
-      }
-    });
+        user_id: userId
+      })
+      .select(`
+        *,
+        user:users(*)
+      `)
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { error: 'Failed to create event' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(event, { status: 201 });
   } catch (error) {

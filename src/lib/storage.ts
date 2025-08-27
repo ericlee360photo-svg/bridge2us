@@ -1,4 +1,4 @@
-import { prisma } from './prisma'
+import { supabase } from './supabase'
 
 // Determine if we should use localStorage (for demo) or database (for production)
 const shouldUseLocalStorage = () => {

@@ -1,22 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    const users = await prisma.user.findMany({
-      include: {
-        relationshipsAsUser1: {
-          include: {
-            user2: true
-          }
-        },
-        relationshipsAsUser2: {
-          include: {
-            user1: true
-          }
-        }
-      }
-    });
+    // Fetch users with their relationships
+    const { data: users, error } = await supabase
+      .from('users')
+      .select(`
+        *,
+        relationshipsAsUser1:relationships!relationships_user1_id_fkey(
+          *,
+          user2:users!relationships_user2_id_fkey(*)
+        ),
+        relationshipsAsUser2:relationships!relationships_user2_id_fkey(
+          *,
+          user1:users!relationships_user1_id_fkey(*)
+        )
+      `);
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch users' },
+        { status: 500 }
+      );
+    }
     
     return NextResponse.json(users);
   } catch (error) {
@@ -40,16 +48,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await prisma.user.create({
-      data: {
+    const { data: user, error } = await supabase
+      .from('users')
+      .insert({
         email,
-        firstName,
-        lastName: lastName || '',
+        first_name: firstName,
+        last_name: lastName || '',
         timezone,
         avatar,
         bio
-      }
-    });
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { error: 'Failed to create user' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(user, { status: 201 });
   } catch (error) {

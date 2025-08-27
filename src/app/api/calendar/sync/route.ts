@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,15 +14,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify that users are in a relationship
-    const relationship = await prisma.relationship.findFirst({
-      where: {
-        OR: [
-          { user1Id: userId, user2Id: partnerId },
-          { user1Id: partnerId, user2Id: userId }
-        ],
-        status: 'ACTIVE'
-      }
-    });
+    const { data: relationship, error: relationshipError } = await supabase
+      .from('relationships')
+      .select('id')
+      .or(`and(user1_id.eq.${userId},user2_id.eq.${partnerId}),and(user1_id.eq.${partnerId},user2_id.eq.${userId})`)
+      .eq('status', 'ACTIVE')
+      .single();
 
     if (!relationship) {
       return NextResponse.json(
@@ -53,10 +50,39 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: updateData
+    // Convert field names to snake_case for Supabase
+    const supabaseData: Record<string, unknown> = {};
+    Object.keys(updateData).forEach(key => {
+      switch (key) {
+        case 'calendarSyncEnabled':
+          supabaseData.calendar_sync_enabled = updateData[key];
+          break;
+        case 'googleCalendarId':
+          supabaseData.google_calendar_id = updateData[key];
+          break;
+        case 'outlookCalendarId':
+          supabaseData.outlook_calendar_id = updateData[key];
+          break;
+        case 'appleCalendarId':
+          supabaseData.apple_calendar_id = updateData[key];
+          break;
+        default:
+          supabaseData[key] = updateData[key];
+      }
     });
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update(supabaseData)
+      .eq('id', userId);
+
+    if (updateError) {
+      console.error('Supabase error:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to update calendar settings' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       { message: 'Calendar sync enabled successfully' },

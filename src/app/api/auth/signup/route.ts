@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
@@ -37,9 +37,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    const { data: existingUser, error: userCheckError } = await supabase
+      .from('users')
+      .select('email')
+      .eq('email', email)
+      .single();
 
     if (existingUser) {
       return NextResponse.json(
@@ -56,59 +58,79 @@ export async function POST(request: NextRequest) {
     const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .insert({
         email,
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         timezone: 'UTC', // Will be updated based on location
         address,
-        isAddressPublic,
-        birthday: new Date(birthday),
-        wakeUpTime,
-        bedTime,
-        workStartTime,
-        workEndTime,
-        gymTime,
-        schoolTime,
-        emailVerified: true, // Bypass email verification for testing
-        emailVerificationToken,
-        emailVerificationExpires
-      }
-    });
+        is_address_public: isAddressPublic,
+        birthday: new Date(birthday).toISOString(),
+        wake_up_time: wakeUpTime,
+        bed_time: bedTime,
+        work_start_time: workStartTime,
+        work_end_time: workEndTime,
+        gym_time: gymTime,
+        school_time: schoolTime,
+        email_verified: true, // Bypass email verification for testing
+        email_verification_token: emailVerificationToken,
+        email_verification_expires: emailVerificationExpires.toISOString()
+      })
+      .select()
+      .single();
+
+    if (userError) {
+      console.error('Error creating user:', userError);
+      return NextResponse.json(
+        { error: 'Failed to create user' },
+        { status: 500 }
+      );
+    }
 
     // Create relationship if partner email is provided
     if (partnerEmail) {
       // Check if partner already exists
-      const partner = await prisma.user.findUnique({
-        where: { email: partnerEmail }
-      });
+      const { data: partner, error: partnerError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', partnerEmail)
+        .single();
 
       if (partner) {
         // Create relationship immediately
-        await prisma.relationship.create({
-          data: {
-            user1Id: user.id,
-            user2Id: partner.id,
+        const { error: relationshipError } = await supabase
+          .from('relationships')
+          .insert({
+            user1_id: user.id,
+            user2_id: partner.id,
             status: 'PENDING',
-            relationshipType,
-            howLongTogether,
-            communicationStyle,
-            loveLanguages,
-            futurePlans
-          }
-        });
+            relationship_type: relationshipType,
+            how_long_together: howLongTogether,
+            communication_style: communicationStyle,
+            love_languages: loveLanguages,
+            future_plans: futurePlans
+          });
+
+        if (relationshipError) {
+          console.error('Error creating relationship:', relationshipError);
+        }
       } else {
         // Create invitation for partner
         const invitationToken = crypto.randomBytes(32).toString('hex');
-        await prisma.invitation.create({
-          data: {
-            senderId: user.id,
-            receiverEmail: partnerEmail,
+        const { error: invitationError } = await supabase
+          .from('invitations')
+          .insert({
+            sender_id: user.id,
+            receiver_email: partnerEmail,
             token: invitationToken,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-          }
-        });
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+          });
+
+        if (invitationError) {
+          console.error('Error creating invitation:', invitationError);
+        }
 
         // TODO: Send invitation email
         console.log(`Invitation sent to ${partnerEmail} with token: ${invitationToken}`);

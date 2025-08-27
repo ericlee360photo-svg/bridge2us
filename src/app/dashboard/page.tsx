@@ -625,14 +625,18 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadUser = async () => {
       try {
+        console.log('Loading user data...');
         const userData = await DataStorage.getUser();
+        console.log('User data:', userData);
         if (!userData) {
+          console.log('No user data found, redirecting to signup');
           router.push('/signup');
           return;
         }
 
         setUser(userData);
         setIsAuthenticated(true);
+        console.log('User authenticated successfully');
     
         // Mock partner data - replace with real partner fetch
         const partnerData = {

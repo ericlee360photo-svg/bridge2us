@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,14 +14,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if relationship already exists
-    const existingRelationship = await prisma.relationship.findFirst({
-      where: {
-        OR: [
-          { user1Id, user2Id },
-          { user1Id: user2Id, user2Id: user1Id }
-        ]
-      }
-    });
+    const { data: existingRelationship, error: checkError } = await supabase
+      .from('relationships')
+      .select('id')
+      .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`)
+      .single();
 
     if (existingRelationship) {
       return NextResponse.json(
@@ -31,17 +28,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Create relationship
-    const relationship = await prisma.relationship.create({
-      data: {
-        user1Id,
-        user2Id,
+    const { data: relationship, error } = await supabase
+      .from('relationships')
+      .insert({
+        user1_id: user1Id,
+        user2_id: user2Id,
         status: 'ACTIVE'
-      },
-      include: {
-        user1: true,
-        user2: true
-      }
-    });
+      })
+      .select(`
+        *,
+        user1:users!relationships_user1_id_fkey(*),
+        user2:users!relationships_user2_id_fkey(*)
+      `)
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { error: 'Failed to create relationship' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(relationship, { status: 201 });
   } catch (error) {
@@ -66,23 +73,27 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's relationships
-    const relationships = await prisma.relationship.findMany({
-      where: {
-        OR: [
-          { user1Id: userId },
-          { user2Id: userId }
-        ],
-        status: 'ACTIVE'
-      },
-      include: {
-        user1: true,
-        user2: true
-      }
-    });
+    const { data: relationships, error: relationshipsError } = await supabase
+      .from('relationships')
+      .select(`
+        *,
+        user1:users!relationships_user1_id_fkey(*),
+        user2:users!relationships_user2_id_fkey(*)
+      `)
+      .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
+      .eq('status', 'ACTIVE');
+
+    if (relationshipsError) {
+      console.error('Supabase error:', relationshipsError);
+      return NextResponse.json(
+        { error: 'Failed to fetch relationships' },
+        { status: 500 }
+      );
+    }
 
     // Format response to show partner info
     const formattedRelationships = relationships.map(rel => {
-      const isUser1 = rel.user1Id === userId;
+      const isUser1 = rel.user1_id === userId;
       const partner = isUser1 ? rel.user2 : rel.user1;
       
       return {
@@ -90,25 +101,25 @@ export async function GET(request: NextRequest) {
         status: rel.status,
         partner: {
           id: partner.id,
-          name: `${partner.firstName} ${partner.lastName}`,
+          name: `${partner.first_name} ${partner.last_name}`,
           email: partner.email,
           timezone: partner.timezone,
-          calendarSyncEnabled: partner.calendarSyncEnabled,
+          calendarSyncEnabled: partner.calendar_sync_enabled,
           schedule: {
-            wakeUpTime: partner.wakeUpTime,
-            bedTime: partner.bedTime,
-            workStartTime: partner.workStartTime,
-            workEndTime: partner.workEndTime,
-            gymTime: partner.gymTime,
-            schoolTime: partner.schoolTime
+            wakeUpTime: partner.wake_up_time,
+            bedTime: partner.bed_time,
+            workStartTime: partner.work_start_time,
+            workEndTime: partner.work_end_time,
+            gymTime: partner.gym_time,
+            schoolTime: partner.school_time
           }
         },
         relationshipDetails: {
-          relationshipType: rel.relationshipType,
-          howLongTogether: rel.howLongTogether,
-          communicationStyle: rel.communicationStyle,
-          loveLanguages: rel.loveLanguages,
-          futurePlans: rel.futurePlans
+          relationshipType: rel.relationship_type,
+          howLongTogether: rel.how_long_together,
+          communicationStyle: rel.communication_style,
+          loveLanguages: rel.love_languages,
+          futurePlans: rel.future_plans
         }
       };
     });
