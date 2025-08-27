@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, ExternalLink, Clock, Music } from 'lucide-react';
+import { spotifyConnectionCache } from '@/lib/spotifyConnectionCache';
+import { spotifyRateLimit } from '@/lib/simpleRateLimit';
 
 interface Track {
   name: string;
@@ -22,37 +24,99 @@ export default function SpotifyActivity({ userId, partnerName }: SpotifyActivity
   const [activity, setActivity] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
+  const [lastFailedCheck, setLastFailedCheck] = useState<number>(0);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   useEffect(() => {
     const fetchActivity = async () => {
+      // Check cache to see if we should skip this request
+      if (spotifyConnectionCache.shouldSkipRequest(userId)) {
+        console.log(`Skipping Spotify activity request for user ${userId} due to cache`);
+        const cachedStatus = spotifyConnectionCache.isConnected(userId);
+        setIsConnected(cachedStatus);
+        if (!cachedStatus) {
+          setActivity(null);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Additional rate limiting check
+      if (!spotifyRateLimit.canMakeRequest(`spotify-activity-${userId}`)) {
+        console.log(`Rate limit prevented Spotify activity request for user ${userId}`);
+        setLoading(false);
+        return;
+      }
+
+      console.log(`Making Spotify activity request for user ${userId}`);
+
       try {
         const response = await fetch(`/api/spotify/activity?userId=${userId}`);
         if (response.ok) {
           const data = await response.json();
           setActivity(data);
           setIsConnected(true);
+          spotifyConnectionCache.recordSuccess(userId);
         } else if (response.status === 404) {
           // User not connected to Spotify
           setIsConnected(false);
           setActivity(null);
+          spotifyConnectionCache.recordFailure(userId);
         }
       } catch (error) {
         console.error('Error fetching Spotify activity:', error);
         setIsConnected(false);
         setActivity(null);
+        spotifyConnectionCache.recordFailure(userId);
       } finally {
         setLoading(false);
       }
     };
 
     fetchActivity();
-    
-    // Only set up interval if user is connected
-    if (isConnected) {
-      const interval = setInterval(fetchActivity, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [userId, isConnected]);
+  }, [userId]);
+
+  // Separate useEffect for setting up the interval
+  useEffect(() => {
+    if (!isConnected) return;
+
+    const interval = setInterval(async () => {
+      // Check cache before making request
+      if (spotifyConnectionCache.shouldSkipRequest(userId)) {
+        console.log(`Skipping Spotify activity polling for user ${userId} due to cache`);
+        return;
+      }
+
+      // Additional rate limiting check for polling
+      if (!spotifyRateLimit.canMakeRequest(`spotify-activity-poll-${userId}`)) {
+        console.log(`Rate limit prevented Spotify activity polling for user ${userId}`);
+        return;
+      }
+
+      console.log(`Polling Spotify activity for user ${userId}`);
+
+      try {
+        const response = await fetch(`/api/spotify/activity?userId=${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setActivity(data);
+          spotifyConnectionCache.recordSuccess(userId);
+        } else if (response.status === 404) {
+          // Connection lost
+          setIsConnected(false);
+          setActivity(null);
+          spotifyConnectionCache.recordFailure(userId);
+        }
+      } catch (error) {
+        console.error('Error fetching Spotify activity:', error);
+        setIsConnected(false);
+        setActivity(null);
+        spotifyConnectionCache.recordFailure(userId);
+      }
+    }, 300000); // Poll every 5 minutes only if connected
+
+    return () => clearInterval(interval);
+  }, [isConnected, userId]);
 
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 60000);

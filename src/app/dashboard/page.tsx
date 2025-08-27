@@ -17,6 +17,9 @@ import SharedJournal from "@/components/SharedJournal";
 import type { PartnerSchedule } from "@/sharedschedule/types";
 import { getZodiacSign, getDailyHoroscope, formatZodiacDisplay, type DailyHoroscope } from "@/lib/horoscope";
 import HoroscopeSettings from "@/components/HoroscopeSettings";
+import { weatherCache } from "@/lib/weatherCache";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -79,25 +82,27 @@ export default function DashboardPage() {
   const partnerTimezone = "America/New_York"; // Mock partner timezone
   const partnerName = "Alex"; // Mock partner name
 
-  // Demo schedule data for the synced schedule feature
+  // Demo schedule data
   const demoUserSchedule: PartnerSchedule = {
-    name: 'You',
-    tz: 'America/Los_Angeles',
+    name: "You",
+    tz: "America/Los_Angeles",
     blocks: [
-      { startMin: 0,   endMin: 360, kind: 'sleep' },     // 12a-6a
-      { startMin: 540, endMin: 1020, kind: 'work' },     // 9a-5p
-      { startMin: 1080,endMin: 1200, kind: 'gym' },      // 6p-8p
-    ],
+      { startMin: 0, endMin: 420, kind: 'sleep' },     // 12am-7am sleep
+      { startMin: 540, endMin: 1020, kind: 'work' },   // 9am-5pm work  
+      { startMin: 1080, endMin: 1140, kind: 'gym' },   // 6pm-7pm gym
+      { startMin: 1320, endMin: 1440, kind: 'sleep' }  // 10pm-12am sleep
+    ]
   };
 
   const demoPartnerSchedule: PartnerSchedule = {
-    name: 'Alex',
-    tz: 'America/New_York',
+    name: "Alex", 
+    tz: "America/New_York",
     blocks: [
-      { startMin: 60,  endMin: 420,  kind: 'sleep' },    // 1a-7a local
-      { startMin: 540, endMin: 960,  kind: 'work' },     // 9a-4p local
-      { startMin: 1140,endMin: 1260, kind: 'meal' },     // 7p-9p local
-    ],
+      { startMin: 0, endMin: 480, kind: 'sleep' },     // 12am-8am sleep
+      { startMin: 570, endMin: 1050, kind: 'work' },   // 9:30am-5:30pm work
+      { startMin: 1110, endMin: 1170, kind: 'gym' },   // 6:30pm-7:30pm gym  
+      { startMin: 1380, endMin: 1440, kind: 'sleep' }  // 11pm-12am sleep
+    ]
   };
 
   // User location state
@@ -274,9 +279,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+    <ErrorBoundary>
+      <div className="min-h-screen p-2 sm:p-4 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <header className="text-center mb-6">
+      <header className="text-center mb-4 sm:mb-6">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Heart className="w-6 h-6 text-pink-500" />
           <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
@@ -291,7 +297,7 @@ export default function DashboardPage() {
       {/* Main Dashboard Grid */}
       <div className="max-w-6xl mx-auto">
         {/* World Map - Full Width */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div ref={mapContainerRef} className="relative w-full" style={{ minHeight: '400px' }}>
             <DotWorldMap 
               key={`map-${userLocation?.lat || homeLocation?.lat}-${userLocation?.lon || homeLocation?.lon}-${partnerLocation.lat}-${partnerLocation.lon}`}
@@ -463,7 +469,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Daily Task Progress Bars */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -624,6 +630,29 @@ export default function DashboardPage() {
                   <div className="text-xs opacity-75">
                     {weather.description.charAt(0).toUpperCase() + weather.description.slice(1)}
                   </div>
+                  {weather.daily.length > 0 && (
+                    <div className="text-xs opacity-75 mt-1">
+                      H: {(() => {
+                        const userData = localStorage.getItem('user');
+                        const userPreferences = userData ? JSON.parse(userData) : {};
+                        const temperatureUnit = userPreferences.temperatureUnit || 'fahrenheit';
+                        const todayWeather = weather.daily[0];
+                        if (temperatureUnit === 'fahrenheit') {
+                          return `${Math.round(todayWeather.maxTemp * 9/5 + 32)}°`;
+                        }
+                        return `${Math.round(todayWeather.maxTemp)}°`;
+                      })()} L: {(() => {
+                        const userData = localStorage.getItem('user');
+                        const userPreferences = userData ? JSON.parse(userData) : {};
+                        const temperatureUnit = userPreferences.temperatureUnit || 'fahrenheit';
+                        const todayWeather = weather.daily[0];
+                        if (temperatureUnit === 'fahrenheit') {
+                          return `${Math.round(todayWeather.minTemp * 9/5 + 32)}°`;
+                        }
+                        return `${Math.round(todayWeather.minTemp)}°`;
+                      })()}
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
                   <span className="text-3xl">{weather.icon}</span>
@@ -652,11 +681,9 @@ export default function DashboardPage() {
                           return formatZodiacDisplay(zodiacSign);
                         })()}
                       </div>
-                      <div className="text-xs opacity-75 mt-1 max-w-xs">
+                      <div className="text-xs opacity-75 mt-1 max-w-sm leading-relaxed">
                         {partnerHoroscope ? 
-                          (partnerHoroscope.horoscope.length > 80 ? 
-                            partnerHoroscope.horoscope.substring(0, 80) + '...' : 
-                            partnerHoroscope.horoscope) :
+                          partnerHoroscope.horoscope :
                           'Loading horoscope...'
                         }
                       </div>
@@ -708,7 +735,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Third Row - Synced Schedule and Spotify */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 sm:mb-6">
           {/* Synced Schedule Widget */}
           <div className="bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl p-4 text-white">
             <h2 className="text-lg font-semibold mb-3">
@@ -727,13 +754,13 @@ export default function DashboardPage() {
               })()}
             </div>
             
-            {/* TwoVerticalBars Component - Shorter */}
-            <div className="h-48 overflow-hidden rounded-lg">
+            {/* TwoVerticalBars Component - Fixed Container */}
+            <div className="h-56 rounded-lg" style={{ minHeight: '220px' }}>
               <TwoVerticalBars 
                 date={new Date()}
                 partnerA={demoUserSchedule}
                 partnerB={demoPartnerSchedule}
-                barHeight={180}
+                barHeight={200}
                 aLoc={{ lat: 34.0522, lon: -118.2437 }}   // Los Angeles
                 bLoc={{ lat: 40.7128, lon: -74.0060 }}   // New York
               />
@@ -881,6 +908,7 @@ export default function DashboardPage() {
           }}
         />
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

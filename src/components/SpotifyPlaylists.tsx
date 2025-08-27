@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Music, Plus, ExternalLink, Users, Heart, Share2 } from 'lucide-react';
+import { spotifyConnectionCache } from '@/lib/spotifyConnectionCache';
+import { spotifyRateLimit } from '@/lib/simpleRateLimit';
 
 interface Playlist {
   id: string;
@@ -26,24 +28,49 @@ export default function SpotifyPlaylists({ userId, partnerName }: SpotifyPlaylis
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [newPlaylistDescription, setNewPlaylistDescription] = useState('');
+  const [lastFailedCheck, setLastFailedCheck] = useState<number>(0);
 
   useEffect(() => {
     const fetchPlaylists = async () => {
+      // Check cache to see if we should skip this request
+      if (spotifyConnectionCache.shouldSkipRequest(userId)) {
+        console.log(`Skipping Spotify playlists request for user ${userId} due to cache`);
+        const cachedStatus = spotifyConnectionCache.isConnected(userId);
+        setIsConnected(cachedStatus);
+        if (!cachedStatus) {
+          setPlaylists([]);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Additional rate limiting check
+      if (!spotifyRateLimit.canMakeRequest(`spotify-playlists-${userId}`)) {
+        console.log(`Rate limit prevented Spotify playlists request for user ${userId}`);
+        setLoading(false);
+        return;
+      }
+
+      console.log(`Making Spotify playlists request for user ${userId}`);
+
       try {
         const response = await fetch(`/api/spotify/playlists?userId=${userId}`);
         if (response.ok) {
           const data = await response.json();
           setPlaylists(data.playlists);
           setIsConnected(true);
+          spotifyConnectionCache.recordSuccess(userId);
         } else if (response.status === 404) {
           // User not connected to Spotify
           setIsConnected(false);
           setPlaylists([]);
+          spotifyConnectionCache.recordFailure(userId);
         }
       } catch (error) {
         console.error('Error fetching Spotify playlists:', error);
         setIsConnected(false);
         setPlaylists([]);
+        spotifyConnectionCache.recordFailure(userId);
       } finally {
         setLoading(false);
       }

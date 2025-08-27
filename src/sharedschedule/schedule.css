@@ -16,11 +16,12 @@
 
 .ss-bar {
   position: relative;
-  height: 420px;           /* adjust as needed */
+  width: 100%;
   background: #11141a;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .ss-hour {

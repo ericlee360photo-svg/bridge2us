@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from 'react';
 import './schedule.css';
 import type { PartnerSchedule, ScheduleBlock } from './types';
@@ -35,6 +37,8 @@ export default function TwoVerticalBars({
   bLoc: {lat:number; lon:number};
   now?: Date;
 }) {
+  // Debug logging - removed for production
+
   const { aProjected, bProjected } = useMemo(() => {
     // Keep kinds when projecting (fill back in)
     const { aProjected, bProjected } = projectBlocksToAClock({
