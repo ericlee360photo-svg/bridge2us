@@ -963,26 +963,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Time Overlays */}
-              <div className="absolute bottom-2 left-2 pointer-events-none">
-                <TimeOverlay 
-                  position=""
-                  title="My Time"
-                  timezone={user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
-                  location={userLocation ? 'Current Location' : (homeLocation ? 'Home Location' : 'San Francisco, USA')}
-                  textColor={mapColors.textColor}
-                />
-              </div>
-              
-              <div className="absolute bottom-2 right-2 pointer-events-none">
-                <TimeOverlay 
-                  position=""
-                  title="Alex's Time"
-                  timezone={partner?.timezone || partnerTimezone}
-                  location={partnerLocation ? `${partnerLocation.lat}, ${partnerLocation.lon}` : "New York, USA"}
-                  textColor={mapColors.textColor}
-                />
-              </div>
+
 
               {/* Distance Display - Center Bottom */}
               {partnerLocation && (userLocation || homeLocation) && (
