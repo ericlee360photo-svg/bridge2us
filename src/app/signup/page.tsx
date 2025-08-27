@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar } from "lucide-react";
+import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar, ExternalLink, Copy } from "lucide-react";
 import ProfilePictureUpload from "@/components/ProfilePictureUpload";
+import { DataStorage } from "@/lib/storage";
+import Link from "next/link";
 
 interface SignupData {
   // Step 1: Basic Info
@@ -43,12 +45,21 @@ interface SignupData {
   measurementSystem: string; // "metric" or "imperial"
   temperatureUnit: string; // "C" or "F"
   distanceUnit: string; // "km" or "mi"
+  
+  // Terms Agreement
+  agreeToTerms: boolean;
+  
+  // Partner Invitation
+  inviteMethod: 'url' | 'email';
+  partnerInviteEmail: string;
 }
 
 export default function SignupPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
+  const [inviteUrlCopied, setInviteUrlCopied] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [signupData, setSignupData] = useState<SignupData>({
     email: "",
     password: "",
@@ -73,7 +84,10 @@ export default function SignupPage() {
     timeFormat: "12h",
     measurementSystem: "imperial",
     temperatureUnit: "F",
-    distanceUnit: "mi"
+    agreeToTerms: false,
+    distanceUnit: "mi",
+    inviteMethod: "url",
+    partnerInviteEmail: ""
   });
 
   const updateField = (field: keyof SignupData, value: string | boolean) => {
@@ -119,11 +133,8 @@ export default function SignupPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 4) {
+    if (currentStep < 6) {
       setCurrentStep(currentStep + 1);
-    } else if (currentStep === 4) {
-      // Skip step 5 (partner invitation) and go directly to submission
-      handleSubmit();
     }
   };
 
@@ -133,7 +144,13 @@ export default function SignupPage() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleCreateAccount = async () => {
+    // Validate terms agreement
+    if (!signupData.agreeToTerms) {
+      alert('You must agree to the Terms of Use to create an account.');
+      return;
+    }
+
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -146,7 +163,7 @@ export default function SignupPage() {
       if (response.ok) {
         const result = await response.json();
         
-        // Store user data in localStorage for authentication
+        // Store user data using DataStorage
         const userData = {
           id: result.user.id,
           firstName: signupData.firstName,
@@ -157,10 +174,13 @@ export default function SignupPage() {
           country: signupData.country,
           language: signupData.language
         };
-        localStorage.setItem('user', JSON.stringify(userData));
+        await DataStorage.setUser(userData);
         
-        alert(result.message);
-        router.push('/dashboard'); // Redirect to dashboard
+        // Store userId for invite URL generation
+        setUserId(result.user.id);
+        
+        // Move to partner invitation step
+        nextStep();
       } else {
         const error = await response.json();
         alert(error.message || 'Signup failed');
@@ -168,6 +188,47 @@ export default function SignupPage() {
     } catch (error) {
       console.error('Signup error:', error);
       alert('An error occurred during signup');
+    }
+  };
+
+  const handleFinishSignup = () => {
+    // Redirect to dashboard after partner invitation
+    router.push('/dashboard');
+  };
+
+  const copyInviteUrl = () => {
+    if (userId) {
+      const inviteUrl = `${window.location.origin}/signup?invite=${userId}`;
+      navigator.clipboard.writeText(inviteUrl);
+      setInviteUrlCopied(true);
+      setTimeout(() => setInviteUrlCopied(false), 3000);
+    }
+  };
+
+  const sendEmailInvite = async () => {
+    if (!signupData.partnerInviteEmail || !userId) return;
+    
+    try {
+      const response = await fetch('/api/invite/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          partnerEmail: signupData.partnerInviteEmail,
+          senderName: `${signupData.firstName} ${signupData.lastName}`
+        }),
+      });
+
+      if (response.ok) {
+        alert('Invitation email sent successfully!');
+      } else {
+        alert('Failed to send invitation email. You can copy the link instead.');
+      }
+    } catch (error) {
+      console.error('Email invite error:', error);
+      alert('Failed to send invitation email. You can copy the link instead.');
     }
   };
 
@@ -555,12 +616,149 @@ export default function SignupPage() {
           </select>
         </div>
 
+        {/* Terms of Use Agreement */}
+        <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
+          <div className="flex items-start space-x-3">
+            <input
+              type="checkbox"
+              id="agreeToTerms"
+              checked={signupData.agreeToTerms}
+              onChange={(e) => updateField('agreeToTerms', e.target.checked)}
+              className="mt-1 h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
+              required
+            />
+            <label htmlFor="agreeToTerms" className="text-sm text-gray-700 dark:text-gray-300">
+              I agree to the{' '}
+              <Link 
+                href="/terms" 
+                target="_blank"
+                className="text-pink-600 hover:text-pink-500 underline inline-flex items-center gap-1"
+              >
+                Terms of Use
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+              {' '}and acknowledge that I have read and understood them.
+            </label>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-7">
+            By checking this box, you agree to be bound by our terms and conditions.
+          </p>
+        </div>
+
         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-200">
             <strong>Note:</strong> These preferences will be applied throughout your dashboard. 
             You can change them later in your settings.
           </p>
         </div>
+      </div>
+    </div>
+  );
+
+  const renderStep6 = () => (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Invite Your Partner</h2>
+      <p className="text-gray-600 dark:text-gray-300">Connect with your partner to start your journey together</p>
+      
+      <div className="space-y-4">
+        {/* Invitation Method Selection */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            How would you like to invite your partner?
+          </label>
+          <div className="space-y-3">
+            <label className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+              <input
+                type="radio"
+                name="inviteMethod"
+                value="url"
+                checked={signupData.inviteMethod === 'url'}
+                onChange={(e) => updateField('inviteMethod', e.target.value)}
+                className="text-pink-600 focus:ring-pink-500"
+              />
+              <div>
+                <div className="font-medium text-gray-800 dark:text-gray-200">Copy Invite Link</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Get a shareable link to send to your partner</div>
+              </div>
+            </label>
+            
+            <label className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+              <input
+                type="radio"
+                name="inviteMethod"
+                value="email"
+                checked={signupData.inviteMethod === 'email'}
+                onChange={(e) => updateField('inviteMethod', e.target.value)}
+                className="text-pink-600 focus:ring-pink-500"
+              />
+              <div>
+                <div className="font-medium text-gray-800 dark:text-gray-200">Send Email Invitation</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">We'll send an invitation email to your partner</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* URL Copy Section */}
+        {signupData.inviteMethod === 'url' && userId && (
+          <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Your Invite Link
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/signup?invite=${userId}`}
+                readOnly
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm"
+              />
+              <button
+                onClick={copyInviteUrl}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  inviteUrlCopied 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-pink-500 hover:bg-pink-600 text-white'
+                }`}
+              >
+                {inviteUrlCopied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Email Input Section */}
+        {signupData.inviteMethod === 'email' && (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Partner's Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={signupData.partnerInviteEmail}
+                  onChange={(e) => updateField('partnerInviteEmail', e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  placeholder="partner@example.com"
+                />
+              </div>
+            </div>
+            <button
+              onClick={sendEmailInvite}
+              disabled={!signupData.partnerInviteEmail}
+              className="w-full px-4 py-2 bg-pink-500 hover:bg-pink-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            >
+              Send Invitation Email
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
+          <strong>Note:</strong> Your partner will need to create their own account using this invitation to link your accounts together.
+        </p>
       </div>
     </div>
   );
@@ -572,6 +770,7 @@ export default function SignupPage() {
       case 3: return renderStep3();
       case 4: return renderStep4();
       case 5: return renderStep5();
+      case 6: return renderStep6();
       default: return renderStep1();
     }
   };
@@ -593,13 +792,13 @@ export default function SignupPage() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
-            <span>Step {currentStep} of 5</span>
-            <span>{Math.round((currentStep / 5) * 100)}%</span>
+            <span>Step {currentStep} of 6</span>
+            <span>{Math.round((currentStep / 6) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div 
               className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / 5) * 100}%` }}
+              style={{ width: `${(currentStep / 6) * 100}%` }}
             ></div>
           </div>
         </div>
@@ -661,7 +860,7 @@ export default function SignupPage() {
               Previous
             </button>
 
-            {currentStep < 4 ? (
+            {currentStep < 5 ? (
               <button
                 onClick={nextStep}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
@@ -669,12 +868,21 @@ export default function SignupPage() {
                 Next
                 <ArrowRight className="w-4 h-4" />
               </button>
-            ) : (
+            ) : currentStep === 5 ? (
               <button
-                onClick={handleSubmit}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
+                onClick={handleCreateAccount}
+                disabled={!signupData.agreeToTerms}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Account
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={handleFinishSignup}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
+              >
+                Enter Dashboard
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}

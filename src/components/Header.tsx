@@ -127,7 +127,7 @@ export default function Header({ isAuthenticated = false, userName }: HeaderProp
                 <div className="flex items-center space-x-2">
                   <User className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {displayName || 'User'}
+                    User
                   </span>
                 </div>
                 <button
@@ -195,7 +195,7 @@ export default function Header({ isAuthenticated = false, userName }: HeaderProp
                   </Link>
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
                     <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                      {displayName || 'User'}
+                      User
                     </div>
                     <button
                       onClick={() => {

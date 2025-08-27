@@ -2,16 +2,18 @@
 
 import React, { useMemo } from 'react';
 import './schedule.css';
-import type { PartnerSchedule, ScheduleBlock } from './types';
-import {
-  projectBlocksToAClock, invertToFree, intersectSegments
-} from './timeUtils';
+import type { PartnerSchedule } from './types';
+import { projectBlocksToAClock, invertToFree, intersectSegments } from './timeUtils';
+// ✅ Safe imports
 import { daylightSegmentsInAClock, nowMinutesInAClock } from './solar';
 
 const DAY_MIN = 1440;
+const clamp = (n:number,min=0,max=1440)=> Math.max(min, Math.min(max, n));
 
 function minToY(min: number, barHeight: number) {
-  return (min / DAY_MIN) * barHeight;
+  // ✅ guard
+  if (!Number.isFinite(min) || !Number.isFinite(barHeight) || barHeight <= 0) return 0;
+  return (clamp(min) / DAY_MIN) * barHeight;
 }
 
 function Block({ b, h, kind }: { b: {startMin:number;endMin:number}, h: number, kind?: string }) {
@@ -21,69 +23,81 @@ function Block({ b, h, kind }: { b: {startMin:number;endMin:number}, h: number, 
 }
 
 export default function TwoVerticalBars({
-  date, // anchor date in Partner A's local calendar
+  date,
   partnerA,
   partnerB,
   barHeight = 420,
-  aLoc, // {lat,lon} for A
-  bLoc, // {lat,lon} for B
+  aLoc,
+  bLoc,
   now = new Date()
 }: {
   date: Date;
   partnerA: PartnerSchedule;
   partnerB: PartnerSchedule;
   barHeight?: number;
-  aLoc: {lat:number; lon:number};
-  bLoc: {lat:number; lon:number};
+  aLoc?: {lat:number; lon:number};   // ✅ optional now
+  bLoc?: {lat:number; lon:number};   // ✅ optional now
   now?: Date;
 }) {
-  // Debug logging - removed for production
+  // ✅ early sanity: fallback blocks array
+  const aBlocks = Array.isArray(partnerA.blocks) ? partnerA.blocks : [];
+  const bBlocks = Array.isArray(partnerB.blocks) ? partnerB.blocks : [];
 
   const { aProjected, bProjected } = useMemo(() => {
-    // Keep kinds when projecting (fill back in)
     const { aProjected, bProjected } = projectBlocksToAClock({
       dateInA: date,
       aTz: partnerA.tz,
-      aBlocksLocal: partnerA.blocks,
-      bSchedule: partnerB,
+      aBlocksLocal: aBlocks,
+      bSchedule: { ...partnerB, blocks: bBlocks },
     });
 
-    // Put kinds back by naive mapping (same index order as source).
-    const _a = aProjected.map((p, i) => ({ ...p, kind: partnerA.blocks[i]?.kind ?? 'other' }));
-    const _b = bProjected.map((p, i) => ({ ...p, kind: partnerB.blocks[i]?.kind ?? 'other' }));
+    // Map kinds safely
+    const _a = aProjected.map((p, i) => ({ ...p, kind: aBlocks[i]?.kind ?? 'other' }));
+    const _b = bProjected.map((p, i) => ({ ...p, kind: bBlocks[i]?.kind ?? 'other' }));
     return { aProjected: _a, bProjected: _b };
-  }, [date, partnerA, partnerB]);
+  }, [date, partnerA.tz, partnerB.tz, aBlocks, bBlocks]);
 
-  // Daylight segments mapped to A's clock
-  const aLightDark = useMemo(() => daylightSegmentsInAClock({
-    dateInA: date, aTz: partnerA.tz, partnerTz: partnerA.tz, lat: aLoc.lat, lon: aLoc.lon
-  }), [date, partnerA.tz, aLoc.lat, aLoc.lon]);
+  // ✅ Daylight segments with hard fallback if loc or solar fails
+  const safeSegs = (lightDark?: {light:{startMin:number;endMin:number}[];dark:{startMin:number;endMin:number}[]}) => ({
+    light: lightDark?.light ?? [],
+    dark:  lightDark?.dark  ?? [],
+  });
 
-  const bLightDark = useMemo(() => daylightSegmentsInAClock({
-    dateInA: date, aTz: partnerA.tz, partnerTz: partnerB.tz, lat: bLoc.lat, lon: bLoc.lon
-  }), [date, partnerA.tz, partnerB.tz, bLoc.lat, bLoc.lon]);
+  let aLightDark = { light: [] as any[], dark: [] as any[] };
+  let bLightDark = { light: [] as any[], dark: [] as any[] };
+  try {
+    if (aLoc && Number.isFinite(aLoc.lat) && Number.isFinite(aLoc.lon)) {
+      aLightDark = safeSegs(daylightSegmentsInAClock({
+        dateInA: date, aTz: partnerA.tz, partnerTz: partnerA.tz, lat: aLoc.lat, lon: aLoc.lon
+      }));
+    }
+    if (bLoc && Number.isFinite(bLoc.lat) && Number.isFinite(bLoc.lon)) {
+      bLightDark = safeSegs(daylightSegmentsInAClock({
+        dateInA: date, aTz: partnerA.tz, partnerTz: partnerB.tz, lat: bLoc.lat, lon: bLoc.lon
+      }));
+    }
+  } catch { /* ignore solar errors in safe mode */ }
 
-  // Current time line (minutes in A's day)
-  const nowMinA = nowMinutesInAClock(now, partnerA.tz);
-  const nowY = Math.min(Math.max(0, nowMinA), 1440); // clamp
+  // ✅ Now line minutes
+  let nowMinA = 0;
+  try { nowMinA = clamp(nowMinutesInAClock(now, partnerA.tz)); } catch { nowMinA = 0; }
+  const nowY = minToY(nowMinA, barHeight);
 
   // helper
   const segStyle = (s:{startMin:number;endMin:number}) => ({
-    top: (s.startMin/1440)*barHeight,
-    height: Math.max(1, ((s.endMin-s.startMin)/1440)*barHeight)
+    top: minToY(s.startMin, barHeight),
+    height: Math.max(1, minToY(s.endMin, barHeight) - minToY(s.startMin, barHeight))
   });
 
-  // Compute "free" segments by inverting busy (non-free) kinds
+  // Busy/free/overlap
   const busyKinds: Record<string, true> = { work: true, sleep: true, school: true, commute: true, gym: true, meal: true, other: true };
-  const aBusy = aProjected.filter(b => busyKinds[b.kind]); // treat everything except 'free' as busy
+  const aBusy = aProjected.filter(b => busyKinds[b.kind]);
   const bBusy = bProjected.filter(b => busyKinds[b.kind]);
-
   const aFree = invertToFree(aBusy);
   const bFree = invertToFree(bBusy);
   const bothFree = intersectSegments(aFree, bFree);
 
-  // Generate hour lines (every 3 hours to reduce clutter)
-  const hours = Array.from({ length: 9 }, (_, i) => i * 3 * 60); // 0..1440 step 180
+  const hours = Array.from({ length: 9 }, (_, i) => i * 180);
 
   return (
     <div className="ss-wrap">

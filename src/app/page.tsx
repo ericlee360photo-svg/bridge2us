@@ -1,23 +1,52 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Heart, ArrowRight, Calendar, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Heart, ArrowRight, Calendar, Clock, AlertTriangle } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [showBurnedMessage, setShowBurnedMessage] = useState(false);
 
   useEffect(() => {
+    // Check if user was redirected after burning the bridge
+    const burned = searchParams?.get('burned');
+    if (burned === 'true') {
+      setShowBurnedMessage(true);
+    }
+
     // Check if user is already authenticated
     const user = localStorage.getItem('user');
     if (user) {
       router.push('/dashboard');
     }
-  }, [router]);
+  }, [router, searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <div className="max-w-4xl mx-auto text-center">
+        
+        {/* Burned Bridge Notification */}
+        {showBurnedMessage && (
+          <div className="mb-8 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-lg p-4">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+              <h3 className="text-lg font-semibold text-red-700 dark:text-red-300">
+                Bridge Burned
+              </h3>
+            </div>
+            <p className="text-red-600 dark:text-red-400">
+              Your partner has burned the bridge. Their account has been permanently deleted.
+            </p>
+            <button 
+              onClick={() => setShowBurnedMessage(false)}
+              className="mt-3 text-sm text-red-600 dark:text-red-400 underline hover:no-underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
         {/* Hero Section */}
         <div className="mb-12">
           <div className="flex justify-center mb-6">
