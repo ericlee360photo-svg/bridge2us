@@ -23,6 +23,27 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import LayoutEditor, { type WidgetConfig } from "@/components/LayoutEditor";
 import { DataStorage } from "@/lib/storage";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard - Bridge2Us",
+  description: "Your personal relationship dashboard. View your partner's status, sync calendars, share music, and stay connected across time zones.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: "Dashboard - Bridge2Us",
+    description: "Your personal relationship dashboard. View your partner's status, sync calendars, share music, and stay connected across time zones.",
+    url: "https://www.bridge2us.app/dashboard",
+    siteName: "Bridge2Us",
+    locale: "en_US",
+    type: "website",
+  },
+  alternates: {
+    canonical: "https://www.bridge2us.app/dashboard",
+  },
+};
 
 interface UserSettings {
   // Personal Info

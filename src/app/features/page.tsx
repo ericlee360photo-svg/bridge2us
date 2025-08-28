@@ -1,3 +1,45 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Features - Bridge2Us",
+  description: "Discover powerful features designed for long-distance relationships. From Spotify connectivity and shared journaling to secret messages and smart scheduling - everything you need to stay connected.",
+  keywords: [
+    "long distance relationship features",
+    "couples app features",
+    "Spotify integration",
+    "shared journaling",
+    "secret messages",
+    "calendar sync",
+    "relationship tools",
+    "couple communication features"
+  ],
+  openGraph: {
+    title: "Features - Bridge2Us",
+    description: "Discover powerful features designed for long-distance relationships. From Spotify connectivity and shared journaling to secret messages and smart scheduling.",
+    url: "https://www.bridge2us.app/features",
+    siteName: "Bridge2Us",
+    images: [
+      {
+        url: "https://www.bridge2us.app/features-og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Bridge2Us Features - Long Distance Relationship Tools",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Features - Bridge2Us",
+    description: "Discover powerful features designed for long-distance relationships. From Spotify connectivity and shared journaling to secret messages and smart scheduling.",
+    images: ["https://www.bridge2us.app/features-twitter-image.png"],
+  },
+  alternates: {
+    canonical: "https://www.bridge2us.app/features",
+  },
+};
+
 export default function FeaturesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 text-gray-100 px-4 py-10">
