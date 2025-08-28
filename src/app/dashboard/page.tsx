@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, Settings, Grid, User, Music, Star, Calendar, FileText, Shield, Trash2, Save, Eye, EyeOff, AlertTriangle, ChevronDown, X } from "lucide-react";
+import ProfilePictureUpload from "@/components/ProfilePictureUpload";
 import { getTimeUntil, getTimezoneDifference } from "@/lib/utils";
 import { haversineKm, kmToMi } from "@/lib/geo";
 import DotWorldMap from "@/components/DotWorldMap";
@@ -33,6 +34,7 @@ interface UserSettings {
   timezone: string;
   country: string;
   language: string;
+  avatar?: string;
   
   // Preferences
   timeFormat: string;
@@ -131,6 +133,7 @@ export default function DashboardPage() {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     country: 'US',
     language: 'en',
+    avatar: '',
     timeFormat: '12h',
     measurementSystem: 'imperial',
     temperatureUnit: 'F',
@@ -1461,6 +1464,43 @@ export default function DashboardPage() {
                   {userSettingsTab === 'personal' && (
                     <div className="space-y-6">
                       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Personal Information</h3>
+                      
+                      {/* Profile Picture Upload */}
+                      <div className="mb-6">
+                        <ProfilePictureUpload
+                          currentAvatar={userSettings.avatar}
+                          onUpload={async (file) => {
+                            try {
+                              const formData = new FormData();
+                              formData.append('file', file);
+                              formData.append('userId', user?.id || 'temp-user-id');
+
+                              const response = await fetch('/api/upload/avatar', {
+                                method: 'POST',
+                                body: formData,
+                              });
+
+                              if (response.ok) {
+                                const result = await response.json();
+                                updateUserSetting('avatar', result.url);
+                                console.log('Profile picture updated successfully');
+                              } else {
+                                const errorData = await response.json().catch(() => ({}));
+                                console.error('Upload failed:', errorData);
+                                const errorMessage = errorData.error || errorData.message || 'Unknown error';
+                                alert(`Upload failed: ${errorMessage}`);
+                              }
+                            } catch (error) {
+                              console.error('Upload error:', error);
+                              alert('Upload failed: Network error. Please try again.');
+                            }
+                          }}
+                          onRemove={() => {
+                            updateUserSetting('avatar', '');
+                          }}
+                          isLoading={false}
+                        />
+                      </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>

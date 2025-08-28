@@ -62,6 +62,9 @@ function SignupContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [inviteUrlCopied, setInviteUrlCopied] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [magicLink, setMagicLink] = useState<string>('');
+  const [invitationToken, setInvitationToken] = useState<string>('');
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const [signupData, setSignupData] = useState<SignupData>({
     email: "",
     password: "",
@@ -90,10 +93,11 @@ function SignupContent() {
     partnerInviteEmail: ""
   });
 
-  // Handle OAuth flow - check for step parameter and pre-fill data
+  // Handle OAuth flow and invitation tokens
   useEffect(() => {
     const oauthStep = searchParams?.get('step');
     const isOAuth = searchParams?.get('oauth') === 'true';
+    const invitationToken = searchParams?.get('invite');
     
     if (isOAuth && oauthStep) {
       // Start at the specified step for OAuth users
@@ -118,6 +122,12 @@ function SignupContent() {
           console.error('Error parsing user data:', error);
         }
       }
+    }
+
+    // Store invitation token if present
+    if (invitationToken) {
+      localStorage.setItem('pendingInvitation', invitationToken);
+      console.log('Invitation token stored:', invitationToken);
     }
   }, [searchParams]);
 
@@ -250,8 +260,99 @@ function SignupContent() {
     }
   };
 
-  const handleFinishSignup = () => {
-    // Redirect to dashboard after partner invitation
+  const generateMagicLink = async () => {
+    if (!userId) return;
+    
+    setIsGeneratingLink(true);
+    try {
+      const response = await fetch('/api/invite/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inviterId: userId,
+          inviterName: `${signupData.firstName} ${signupData.lastName}`,
+          inviterEmail: signupData.email
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setMagicLink(result.magicLink);
+        setInvitationToken(result.invitationToken);
+        console.log('Magic link generated successfully');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to generate magic link:', errorData);
+        alert('Failed to generate invitation link. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error generating magic link:', error);
+      alert('Failed to generate invitation link. Please try again.');
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  };
+
+  const copyMagicLink = async () => {
+    if (magicLink) {
+      try {
+        await navigator.clipboard.writeText(magicLink);
+        setInviteUrlCopied(true);
+        setTimeout(() => setInviteUrlCopied(false), 2000);
+      } catch (error) {
+        console.error('Failed to copy link:', error);
+        alert('Failed to copy link. Please copy it manually.');
+      }
+    }
+  };
+
+  const handleFinishSignup = async () => {
+    // Check for pending invitation and accept it
+    const pendingInvitation = localStorage.getItem('pendingInvitation');
+    
+    if (pendingInvitation && userId) {
+      try {
+        const response = await fetch('/api/invite/accept', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            invitationToken: pendingInvitation,
+            inviteeId: userId,
+            inviteeName: `${signupData.firstName} ${signupData.lastName}`,
+            inviteeEmail: signupData.email
+          }),
+        });
+
+        if (response.ok) {
+          console.log('Partnership created successfully');
+          localStorage.removeItem('pendingInvitation');
+        } else {
+          console.error('Failed to accept invitation');
+        }
+      } catch (error) {
+        console.error('Error accepting invitation:', error);
+      }
+    }
+
+    // Save user data to localStorage
+    const userData = {
+      id: userId || 'temp-user-id',
+      firstName: signupData.firstName,
+      lastName: signupData.lastName,
+      email: signupData.email,
+      avatar: signupData.avatar,
+      timezone: signupData.timezone,
+      country: signupData.country,
+      language: signupData.language
+    };
+    
+    localStorage.setItem('user', JSON.stringify(userData));
+    
+    // Redirect to dashboard
     router.push('/dashboard');
   };
 
@@ -703,10 +804,59 @@ function SignupContent() {
       <p className="text-gray-600 dark:text-gray-300">Connect with your partner to start your journey together</p>
       
       <div className="space-y-4">
-        {/* Invitation Method Selection */}
+        {/* Magic Link Generation */}
+        <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="font-medium text-gray-800 dark:text-gray-200">Magic Link Invitation</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Generate a secure link to invite your partner</p>
+            </div>
+            <button
+              onClick={generateMagicLink}
+              disabled={isGeneratingLink || !!magicLink}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                magicLink 
+                  ? 'bg-green-500 text-white cursor-not-allowed' 
+                  : isGeneratingLink
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-pink-500 hover:bg-pink-600 text-white'
+              }`}
+            >
+              {magicLink ? 'Generated!' : isGeneratingLink ? 'Generating...' : 'Generate Link'}
+            </button>
+          </div>
+
+          {magicLink && (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={magicLink}
+                  readOnly
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm"
+                />
+                <button
+                  onClick={copyMagicLink}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    inviteUrlCopied 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  }`}
+                >
+                  {inviteUrlCopied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Share this link with your partner. When they sign up using this link, your accounts will be automatically linked as partners.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Alternative Invitation Methods */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            How would you like to invite your partner?
+            Alternative invitation methods:
           </label>
           <div className="space-y-3">
             <label className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -719,8 +869,8 @@ function SignupContent() {
                 className="text-pink-600 focus:ring-pink-500"
               />
               <div>
-                <div className="font-medium text-gray-800 dark:text-gray-200">Copy Invite Link</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Get a shareable link to send to your partner</div>
+                <div className="font-medium text-gray-800 dark:text-gray-200">Simple User ID Link</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Basic invitation link (less secure)</div>
               </div>
             </label>
             
@@ -745,7 +895,7 @@ function SignupContent() {
         {signupData.inviteMethod === 'url' && userId && (
           <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Your Invite Link
+              Simple Invite Link
             </label>
             <div className="flex gap-2">
               <input
@@ -799,7 +949,8 @@ function SignupContent() {
 
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
         <p className="text-sm text-blue-800 dark:text-blue-200">
-          <strong>Note:</strong> Your partner will need to create their own account using this invitation to link your accounts together.
+          <strong>Note:</strong> Your partner will need to create their own account using this invitation to link your accounts together. 
+          The magic link is the most secure option and will automatically link your accounts when your partner signs up.
         </p>
       </div>
     </div>
