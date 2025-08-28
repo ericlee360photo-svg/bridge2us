@@ -7,6 +7,7 @@ import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar, Exter
 import ProfilePictureUpload from "@/components/ProfilePictureUpload";
 import { DataStorage } from "@/lib/storage";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 interface SignupData {
   // Step 1: Basic Info
@@ -151,40 +152,55 @@ export default function SignupPage() {
       return;
     }
 
+    if (!signupData.email || !signupData.password) {
+      alert('Email and password are required.');
+      return;
+    }
+
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(signupData),
+      // Create Supabase auth user with email/password
+      const { data, error } = await supabase.auth.signUp({
+        email: signupData.email,
+        password: signupData.password,
+        options: {
+          data: {
+            first_name: signupData.firstName,
+            last_name: signupData.lastName,
+          }
+        }
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        
-        // Store user data using DataStorage
-        const userData = {
-          id: result.user.id,
-          firstName: signupData.firstName,
-          lastName: signupData.lastName,
-          email: signupData.email,
-          avatar: signupData.avatar,
-          timezone: signupData.timezone || "UTC",
-          country: signupData.country,
-          language: signupData.language
-        };
-        await DataStorage.setUser(userData);
-        
-        // Store userId for invite URL generation
-        setUserId(result.user.id);
-        
-        // Move to partner invitation step
-        nextStep();
-      } else {
-        const error = await response.json();
+      if (error) {
+        console.error('Supabase signup error:', error);
         alert(error.message || 'Signup failed');
+        return;
       }
+
+      const supaUserId = data.user?.id || null;
+      if (supaUserId) {
+        setUserId(supaUserId);
+      }
+
+      // Store minimal user locally for UX continuity
+      const userData = {
+        id: supaUserId || 'pending-verification',
+        firstName: signupData.firstName,
+        lastName: signupData.lastName,
+        email: signupData.email,
+        avatar: signupData.avatar,
+        timezone: signupData.timezone || "UTC",
+        country: signupData.country,
+        language: signupData.language
+      };
+      await DataStorage.setUser(userData);
+
+      // Inform user to check email if confirmation is enabled
+      alert('Account created. Please check your email to confirm your address before signing in.');
+
+      // Proceed to invitation step (optional) or navigate to signin
+      nextStep();
+      // Alternatively redirect to sign-in page:
+      // router.push('/auth/signin');
     } catch (error) {
       console.error('Signup error:', error);
       alert('An error occurred during signup');
@@ -810,7 +826,7 @@ export default function SignupPage() {
             <div className="mb-6">
               <button
                 onClick={handleGoogleSignUp}
-                className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-3 px-4 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors"
+                className="w-full flex items-center justify-center gap-3 bg.white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-3 px-4 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
