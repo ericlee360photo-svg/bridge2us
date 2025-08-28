@@ -8,6 +8,8 @@ import ProfilePictureUpload from "@/components/ProfilePictureUpload";
 import { DataStorage } from "@/lib/storage";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import UsualWeekWizard from "@/weekscheduler/UsualWeekWizard";
+import "@/sharedschedule/schedule.css";
 
 interface SignupData {
   // Step 1: Basic Info
@@ -19,10 +21,12 @@ interface SignupData {
   // Step 2: Profile Details
   birthday: string;
   address: string;
+  city: string;
+  state: string;
+  country: string;
   isAddressPublic: boolean;
   avatar?: string;
   timezone?: string;
-  country?: string;
   language?: string;
   
   // Step 3: Schedule
@@ -30,10 +34,11 @@ interface SignupData {
   bedTime: string;
   workStartTime: string;
   workEndTime: string;
-  gymTime: string;
-  schoolTime: string;
   
-  // Step 4: Relationship
+  // Step 4: Usual Week Schedule
+  usualWeekCompleted: boolean;
+  
+  // Step 5: Relationship
   relationshipType: string;
   howLongTogether: string;
   communicationStyle: string;
@@ -41,7 +46,7 @@ interface SignupData {
   futurePlans: string;
   partnerEmail: string;
   
-  // Step 5: Preferences
+  // Step 6: Preferences
   timeFormat: string; // "12h" or "24h"
   measurementSystem: string; // "metric" or "imperial"
   temperatureUnit: string; // "C" or "F"
@@ -68,14 +73,16 @@ export default function SignupPage() {
     lastName: "",
     birthday: "",
     address: "",
+    city: "",
+    state: "",
+    country: "",
     isAddressPublic: false,
     avatar: "",
     wakeUpTime: "07:00",
     bedTime: "23:00",
     workStartTime: "09:00",
     workEndTime: "17:00",
-    gymTime: "18:00",
-    schoolTime: "08:00",
+    usualWeekCompleted: false,
     relationshipType: "",
     howLongTogether: "",
     communicationStyle: "",
@@ -111,11 +118,13 @@ export default function SignupPage() {
         const result = await response.json();
         updateField('avatar', result.url);
       } else {
-        alert('Failed to upload profile picture');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Upload failed:', errorData);
+        alert(`Upload failed: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload profile picture');
+      alert('Upload failed: Network error. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -134,7 +143,7 @@ export default function SignupPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 6) {
+    if (currentStep < 7) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -143,6 +152,11 @@ export default function SignupPage() {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const handleUsualWeekComplete = () => {
+    updateField('usualWeekCompleted', true);
+    nextStep();
   };
 
   const handleCreateAccount = async () => {
@@ -359,7 +373,7 @@ export default function SignupPage() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Address (Optional)
+            Street Address (Optional)
           </label>
           <div className="relative">
             <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -368,21 +382,63 @@ export default function SignupPage() {
               value={signupData.address}
               onChange={(e) => updateField('address', e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-              placeholder="Your address (kept private by default)"
+              placeholder="123 Main St"
             />
           </div>
-          <div className="mt-2 flex items-center">
-            <input
-              type="checkbox"
-              id="addressPublic"
-              checked={signupData.isAddressPublic}
-              onChange={(e) => updateField('isAddressPublic', e.target.checked)}
-              className="mr-2"
-            />
-            <label htmlFor="addressPublic" className="text-sm text-gray-600 dark:text-gray-300">
-              Share my address with my partner
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              City
             </label>
+            <input
+              type="text"
+              value={signupData.city}
+              onChange={(e) => updateField('city', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              placeholder="City"
+            />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              State/Province
+            </label>
+            <input
+              type="text"
+              value={signupData.state}
+              onChange={(e) => updateField('state', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              placeholder="State"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Country
+            </label>
+            <input
+              type="text"
+              value={signupData.country}
+              onChange={(e) => updateField('country', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              placeholder="Country"
+            />
+          </div>
+        </div>
+
+        <div className="mt-2 flex items-center">
+          <input
+            type="checkbox"
+            id="addressPublic"
+            checked={signupData.isAddressPublic}
+            onChange={(e) => updateField('isAddressPublic', e.target.checked)}
+            className="mr-2"
+          />
+          <label htmlFor="addressPublic" className="text-sm text-gray-600 dark:text-gray-300">
+            Share my address with my partner
+          </label>
         </div>
       </div>
     </div>
@@ -441,35 +497,33 @@ export default function SignupPage() {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
           />
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Gym Time
-          </label>
-          <input
-            type="time"
-            value={signupData.gymTime}
-            onChange={(e) => updateField('gymTime', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            School Time
-          </label>
-          <input
-            type="time"
-            value={signupData.schoolTime}
-            onChange={(e) => updateField('schoolTime', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-          />
-        </div>
       </div>
     </div>
   );
 
   const renderStep4 = () => (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Weekly Schedule</h2>
+      <p className="text-gray-600 dark:text-gray-300">Set up your usual weekly schedule. You can adjust this later.</p>
+      
+      <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          This will be your default schedule template. You can modify individual weeks as needed.
+        </p>
+      </div>
+      
+      {/* Usual Week Wizard */}
+      <div className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+        <UsualWeekWizard
+          userId={userId || 'temp-user-id'}
+          tz={signupData.timezone || 'UTC'}
+          onComplete={handleUsualWeekComplete}
+        />
+      </div>
+    </div>
+  );
+
+  const renderStep5 = () => (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Relationship Details</h2>
       <p className="text-gray-600 dark:text-gray-300">Tell us about your relationship</p>
@@ -566,7 +620,7 @@ export default function SignupPage() {
     </div>
   );
 
-  const renderStep5 = () => (
+  const renderStep6 = () => (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Your Preferences</h2>
       <p className="text-gray-600 dark:text-gray-300">Customize your experience with these settings</p>
@@ -671,7 +725,7 @@ export default function SignupPage() {
     </div>
   );
 
-  const renderStep6 = () => (
+  const renderStep7 = () => (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Invite Your Partner</h2>
       <p className="text-gray-600 dark:text-gray-300">Connect with your partner to start your journey together</p>
@@ -787,13 +841,14 @@ export default function SignupPage() {
       case 4: return renderStep4();
       case 5: return renderStep5();
       case 6: return renderStep6();
+      case 7: return renderStep7();
       default: return renderStep1();
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w.full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -808,13 +863,13 @@ export default function SignupPage() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
-            <span>Step {currentStep} of 6</span>
-            <span>{Math.round((currentStep / 6) * 100)}%</span>
+            <span>Step {currentStep} of 7</span>
+            <span>{Math.round((currentStep / 7) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div 
               className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / 6) * 100}%` }}
+              style={{ width: `${(currentStep / 7) * 100}%` }}
             ></div>
           </div>
         </div>
