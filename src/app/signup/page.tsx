@@ -10,45 +10,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import UsualWeekWizard from "@/weekscheduler/UsualWeekWizard";
 import "@/sharedschedule/schedule.css";
-import type { Metadata } from "next";
 import { useSearchParams } from "next/navigation";
-
-export const metadata: Metadata = {
-  title: "Sign Up - Bridge2Us",
-  description: "Create your Bridge2Us account and start your long-distance relationship journey. Set up your profile, schedule, and connect with your partner.",
-  keywords: [
-    "sign up",
-    "create account",
-    "long distance relationship app",
-    "couples app registration",
-    "relationship app signup"
-  ],
-  openGraph: {
-    title: "Sign Up - Bridge2Us",
-    description: "Create your Bridge2Us account and start your long-distance relationship journey. Set up your profile, schedule, and connect with your partner.",
-    url: "https://www.bridge2us.app/signup",
-    siteName: "Bridge2Us",
-    images: [
-      {
-        url: "https://www.bridge2us.app/signup-og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Bridge2Us Sign Up - Create Your Account",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Sign Up - Bridge2Us",
-    description: "Create your Bridge2Us account and start your long-distance relationship journey. Set up your profile, schedule, and connect with your partner.",
-    images: ["https://www.bridge2us.app/signup-twitter-image.png"],
-  },
-  alternates: {
-    canonical: "https://www.bridge2us.app/signup",
-  },
-};
 
 interface SignupData {
   // Step 1: Basic Info
