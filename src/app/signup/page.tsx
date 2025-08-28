@@ -130,7 +130,10 @@ function SignupContent() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('userId', 'temp-user-id'); // Will be updated after user creation
+      
+      // Use a unique temporary ID based on timestamp and email
+      const tempUserId = `temp-${Date.now()}-${signupData.email.replace(/[^a-zA-Z0-9]/g, '')}`;
+      formData.append('userId', tempUserId);
 
       const response = await fetch('/api/upload/avatar', {
         method: 'POST',
@@ -140,10 +143,12 @@ function SignupContent() {
       if (response.ok) {
         const result = await response.json();
         updateField('avatar', result.url);
+        console.log('Upload successful:', result.message);
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error('Upload failed:', errorData);
-        alert(`Upload failed: ${errorData.message || 'Unknown error'}`);
+        const errorMessage = errorData.error || errorData.message || 'Unknown error';
+        alert(`Upload failed: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Upload error:', error);
