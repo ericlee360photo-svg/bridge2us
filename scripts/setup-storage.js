@@ -46,39 +46,22 @@ async function setupStorage() {
     // Set up bucket policies for public access
     console.log('Setting up bucket policies...');
     
-    // Policy to allow authenticated users to upload
-    const { error: uploadPolicyError } = await supabase.storage
-      .from('avatars')
-      .createPolicy('Allow authenticated uploads', {
-        name: 'Allow authenticated uploads',
-        definition: {
-          role: 'authenticated',
-          operation: 'INSERT'
-        }
-      });
-
-    if (uploadPolicyError && !uploadPolicyError.message.includes('already exists')) {
-      console.error('Error creating upload policy:', uploadPolicyError);
-    } else {
-      console.log('✅ Upload policy set');
-    }
-
-    // Policy to allow public read access
-    const { error: readPolicyError } = await supabase.storage
-      .from('avatars')
-      .createPolicy('Allow public read access', {
-        name: 'Allow public read access',
-        definition: {
-          role: 'anon',
-          operation: 'SELECT'
-        }
-      });
-
-    if (readPolicyError && !readPolicyError.message.includes('already exists')) {
-      console.error('Error creating read policy:', readPolicyError);
-    } else {
-      console.log('✅ Read policy set');
-    }
+    // Note: Storage policies need to be set up manually in Supabase Dashboard
+    // Go to Storage > Policies and add these policies:
+    console.log('📝 Manual setup required:');
+    console.log('1. Go to your Supabase Dashboard');
+    console.log('2. Navigate to Storage > Policies');
+    console.log('3. Add policy for "avatars" bucket:');
+    console.log('   - Name: "Allow authenticated uploads"');
+    console.log('   - Operation: INSERT');
+    console.log('   - Role: authenticated');
+    console.log('4. Add policy for "avatars" bucket:');
+    console.log('   - Name: "Allow public read access"');
+    console.log('   - Operation: SELECT');
+    console.log('   - Role: anon');
+    console.log('');
+    console.log('✅ Bucket created successfully!');
+    console.log('⚠️  Please set up policies manually in Supabase Dashboard');
 
     console.log('🎉 Supabase Storage setup complete!');
     console.log('You can now upload avatar images to the "avatars" bucket.');

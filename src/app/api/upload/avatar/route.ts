@@ -56,8 +56,23 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase upload error:', error);
+      
+      // If it's a policy error, provide helpful message
+      if (error.message.includes('policy') || error.message.includes('permission')) {
+        return NextResponse.json(
+          { 
+            error: 'Storage permissions not configured. Please set up Supabase Storage policies.',
+            details: error.message
+          },
+          { status: 500 }
+        );
+      }
+      
       return NextResponse.json(
-        { error: 'Failed to upload to cloud storage' },
+        { 
+          error: 'Failed to upload to cloud storage',
+          details: error.message
+        },
         { status: 500 }
       );
     }
