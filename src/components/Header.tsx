@@ -99,7 +99,7 @@ export default function Header({ isAuthenticated = false, userName }: HeaderProp
                   Home
                 </Link>
                 <Link 
-                  href="#features" 
+                  href="/features" 
                   className="text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
                 >
                   Features
@@ -218,7 +218,7 @@ export default function Header({ isAuthenticated = false, userName }: HeaderProp
                     Home
                   </Link>
                   <Link
-                    href="#features"
+                    href="/features"
                     className="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
