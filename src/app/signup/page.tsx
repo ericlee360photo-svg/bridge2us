@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar, ExternalLink, Copy } from "lucide-react";
@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 import UsualWeekWizard from "@/weekscheduler/UsualWeekWizard";
 import "@/sharedschedule/schedule.css";
 import type { Metadata } from "next";
+import { useSearchParams } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Sign Up - Bridge2Us",
@@ -94,6 +95,7 @@ interface SignupData {
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
   const [inviteUrlCopied, setInviteUrlCopied] = useState(false);
@@ -125,6 +127,37 @@ export default function SignupPage() {
     inviteMethod: "url",
     partnerInviteEmail: ""
   });
+
+  // Handle OAuth flow - check for step parameter and pre-fill data
+  useEffect(() => {
+    const oauthStep = searchParams?.get('step');
+    const isOAuth = searchParams?.get('oauth') === 'true';
+    
+    if (isOAuth && oauthStep) {
+      // Start at the specified step for OAuth users
+      setCurrentStep(parseInt(oauthStep));
+      
+      // Pre-fill data from localStorage if available
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setSignupData(prev => ({
+            ...prev,
+            email: userData.email || "",
+            firstName: userData.firstName || "",
+            lastName: userData.lastName || "",
+            avatar: userData.avatar || "",
+            timezone: userData.timezone || "UTC",
+            country: userData.country || "",
+            language: userData.language || "en"
+          }));
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
+    }
+  }, [searchParams]);
 
   const updateField = (field: keyof SignupData, value: string | boolean) => {
     setSignupData(prev => ({ ...prev, [field]: value }));

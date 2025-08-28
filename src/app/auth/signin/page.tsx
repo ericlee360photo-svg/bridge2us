@@ -44,9 +44,9 @@ export default function SignInPage() {
       // Check if this is a signup flow
       const isSignup = searchParams.get('signup') === 'true';
       if (isSignup) {
-        // For new users, redirect to onboarding or dashboard
-        // You can add onboarding logic here later
-        router.push("/dashboard");
+        // For new users from Google OAuth, redirect to signup flow at Step 2
+        // This skips the email/password creation step since Google provides that
+        router.push("/signup?step=2&oauth=true");
       } else {
         // For existing users, go to dashboard
         router.push("/dashboard");
