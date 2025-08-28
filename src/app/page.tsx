@@ -166,7 +166,7 @@ export default function Home(){
         </div>
 
         {/* CTA Section */}
-        <div className="text-center bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-2xl p-8 border border-pink-500/20">
+        <div className="text-center bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-2xl p-8 border border-pink-500/20 mb-20">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Ready to bridge the distance?
           </h2>
@@ -181,6 +181,37 @@ export default function Home(){
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Footer */}
+        <footer className="border-t border-gray-700 pt-8 pb-12">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center gap-2 mb-4 md:mb-0">
+              <Heart className="w-6 h-6 text-pink-500" />
+              <span className="text-white font-semibold text-lg">Bridge2Us</span>
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center gap-6 text-sm">
+              <div className="flex items-center gap-6">
+                <a 
+                  href="/terms" 
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Terms of Service
+                </a>
+                <a 
+                  href="/privacy" 
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Privacy Policy
+                </a>
+              </div>
+              
+              <div className="text-gray-500 text-xs">
+                © 2024 Bridge2Us. All rights reserved.
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
