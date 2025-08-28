@@ -1,45 +1,24 @@
 // middleware.ts
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-// import createMiddleware from 'next-intl/middleware';
-// import { locales } from './i18n';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import { locales } from './i18n';
 
-// DISABLED FOR DEBUGGING - TEMPORARILY COMMENTED OUT
-// const PUBLIC_FILE = /\.(.*)$/i
-// const IGNORE_PREFIXES = [
-//   '/_next',          // Next assets
-//   '/api',            // API routes
-//   '/favicon.ico',
-//   '/robots.txt',
-//   '/sitemap.xml',
-//   '/__routes',       // your debug route
-//   '/__health',       // your debug route
-//   '/health',         // health check route
-//   '/assets', '/images', '/icons' // your static dirs, adjust as needed
-// ]
+const PUBLIC_FILE = /\.(.*)$/i;
+const IGNORE_PREFIXES = ['/_next','/api','/__routes','/__health','/favicon.ico','/robots.txt','/sitemap.xml','/assets','/images','/icons'];
 
-// const i18nMiddleware = createMiddleware({
-//   locales: locales,
-//   defaultLocale: 'en',
-//   localePrefix: 'as-needed'
-// });
+const intl = createMiddleware({
+  locales,
+  defaultLocale: 'en',
+  localePrefix: 'as-needed',
+});
 
-export function middleware(req: NextRequest) {
-  // DISABLED FOR DEBUGGING - TEMPORARILY RETURNING NEXT
-  return NextResponse.next();
-  
-  // const { pathname } = req.nextUrl
-
-  // // Skip public files (/file.ext)
-  // if (PUBLIC_FILE.test(pathname)) return NextResponse.next()
-
-  // // Skip known non-page prefixes
-  // if (IGNORE_PREFIXES.some((p) => pathname.startsWith(p))) {
-  //   return NextResponse.next()
-  // }
-
-  // // Apply i18n middleware for page routes
-  // return i18nMiddleware(req)
+export default function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  if (PUBLIC_FILE.test(pathname) || IGNORE_PREFIXES.some(p => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
+  return intl(req);
 }
 
 export const config = {

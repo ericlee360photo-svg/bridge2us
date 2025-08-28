@@ -18,35 +18,45 @@ export const viewport: Viewport = {
   ],
 };
 
-export const metadata: Metadata = {
-  title: "Bridge2Us - Long Distance Relationship Companion",
-  description: "Stay connected with your partner across time zones. Countdown to meetups, sync calendars, and bridge the distance together.",
-  keywords: ["long distance relationship", "couples app", "timezone", "calendar sync", "meetup countdown"],
-  authors: [{ name: "Bridge2Us Team" }],
-  creator: "Bridge2Us",
-  publisher: "Bridge2Us",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Bridge2Us",
-  },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-  },
-};
+export const metadata: Metadata = (() => {
+  try {
+    return {
+      title: "Bridge2Us - Long Distance Relationship Companion",
+      description: "Stay connected with your partner across time zones. Countdown to meetups, sync calendars, and bridge the distance together.",
+      keywords: ["long distance relationship", "couples app", "timezone", "calendar sync", "meetup countdown"],
+      authors: [{ name: "Bridge2Us Team" }],
+      creator: "Bridge2Us",
+      publisher: "Bridge2Us",
+      formatDetection: {
+        email: false,
+        address: false,
+        telephone: false,
+      },
+      manifest: "/manifest.json",
+      appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: "Bridge2Us",
+      },
+      icons: {
+        icon: [
+          { url: "/favicon.ico", sizes: "any" },
+          { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+          { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+        ],
+        apple: [
+          { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+        ],
+      },
+    };
+  } catch (error) {
+    // Fallback to minimal metadata if anything fails
+    return {
+      title: "Bridge2Us",
+      description: "Long Distance Relationship Companion",
+    };
+  }
+})();
 
 export default function RootLayout({
   children,
