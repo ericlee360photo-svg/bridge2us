@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar, ExternalLink, Copy } from "lucide-react";
@@ -55,7 +55,7 @@ interface SignupData {
   partnerInviteEmail: string;
 }
 
-export default function SignupPage() {
+function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
@@ -937,5 +937,20 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="text-center">
+          <Heart className="w-12 h-12 text-pink-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Loading...</h2>
+        </div>
+      </div>
+    }>
+      <SignupContent />
+    </Suspense>
   );
 }
