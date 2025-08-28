@@ -40,10 +40,13 @@ Run these commands to test:
 npm run dev
 ```
 
-Visit:
-- http://localhost:3000 (should work)
-- http://localhost:3000/signup (test user creation)
-- http://localhost:3000/dashboard (test data loading)
+Dev test URLs:
+- http://localhost:3000 (local only)
+
+Prod test URLs:
+- http://www.bridge2us.app
+- http://www.bridge2us.app/signup
+- http://www.bridge2us.app/dashboard
 
 ## 📊 Database Schema Changes
 
