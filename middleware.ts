@@ -5,7 +5,7 @@ import createMiddleware from 'next-intl/middleware';
 import { locales } from './i18n';
 
 const PUBLIC_FILE = /\.(.*)$/i;
-const IGNORE_PREFIXES = ['/_next','/api','/__routes','/__health','/favicon.ico','/robots.txt','/sitemap.xml','/assets','/images','/icons'];
+const IGNORE_PREFIXES = ['/_next','/api','/__routes','/__health','/favicon.ico','/robots.txt','/sitemap.xml','/assets','/images','/icons','/auth','/signup'];
 
 const intl = createMiddleware({
   locales,
@@ -23,6 +23,6 @@ export default function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next|api|__routes|__health|favicon\\.ico|robots\\.txt|sitemap\\.xml|assets|images|icons|.*\\..*).*)',
+    '/((?!_next|api|__routes|__health|favicon\\.ico|robots\\.txt|sitemap\\.xml|assets|images|icons|auth|signup|.*\\..*).*)',
   ],
 };
