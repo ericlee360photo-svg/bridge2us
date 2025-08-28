@@ -1,15 +1,10 @@
 import type { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  eslint: {
-    // Completely ignore ESLint during builds
-    ignoreDuringBuilds: true,
-    dirs: [], // Don't run ESLint on any directories
-  },
-  typescript: {
-    // Completely ignore TypeScript errors during builds
-    ignoreBuildErrors: true,
-  },
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
+  serverExternalPackages: ['suncalc'],
 };
 
 export default nextConfig;

@@ -1,1 +1,1 @@
-export default function RoutesHealth(){ return <pre>/__routes OK</pre>; }
+export default () => <pre>__routes ok</pre>
