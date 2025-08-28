@@ -164,7 +164,8 @@ export default function SignupPage() {
 
   const handleGoogleSignUp = async () => {
     try {
-      await signIn("google", { callbackUrl: "/" });
+      // Redirect to signin page with a special parameter to indicate signup flow
+      await signIn("google", { callbackUrl: "/auth/signin?signup=true" });
     } catch (error) {
       console.error("Sign up error:", error);
     }

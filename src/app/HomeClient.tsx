@@ -2,15 +2,39 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Heart, ArrowRight, Calendar, Clock, AlertTriangle } from "lucide-react";
 
 export default function HomeClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check for authenticated session first
+    if (status === "authenticated" && session?.user) {
+      // Store user data in localStorage for our app
+      const extendedUser = session.user as any; // Type assertion for extended user properties
+      const userData = {
+        id: extendedUser.id || 'temp-id',
+        firstName: extendedUser.firstName || session.user.name?.split(' ')[0] || '',
+        lastName: extendedUser.lastName || session.user.name?.split(' ').slice(1).join(' ') || '',
+        email: session.user.email || '',
+        avatar: extendedUser.avatar || session.user.image || '',
+        timezone: extendedUser.timezone || "UTC",
+        country: extendedUser.country || '',
+        language: extendedUser.language || ''
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      
+      // Redirect to dashboard
+      router.push('/dashboard');
+      return;
+    }
+    
     // Check for user in localStorage (demo/development)
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -19,7 +43,7 @@ export default function HomeClient() {
         setUser(userData);
         
         // If user exists and there's no specific redirect, go to dashboard
-        if (!searchParams.get('redirect')) {
+        if (!searchParams?.get('redirect')) {
           router.push('/dashboard');
         }
       } catch (error) {
@@ -27,7 +51,7 @@ export default function HomeClient() {
       }
     }
     setIsLoading(false);
-  }, [router, searchParams]);
+  }, [router, searchParams, session, status]);
 
   if (isLoading) {
     return (

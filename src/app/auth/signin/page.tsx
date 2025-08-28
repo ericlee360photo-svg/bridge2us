@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Heart, ArrowRight } from "lucide-react";
 
@@ -20,6 +20,7 @@ interface ExtendedUser {
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,9 +40,19 @@ export default function SignInPage() {
         language: extendedUser.language || ''
       };
       localStorage.setItem('user', JSON.stringify(userData));
-      router.push("/dashboard");
+      
+      // Check if this is a signup flow
+      const isSignup = searchParams.get('signup') === 'true';
+      if (isSignup) {
+        // For new users, redirect to onboarding or dashboard
+        // You can add onboarding logic here later
+        router.push("/dashboard");
+      } else {
+        // For existing users, go to dashboard
+        router.push("/dashboard");
+      }
     }
-  }, [session, status, router]);
+  }, [session, status, router, searchParams]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
