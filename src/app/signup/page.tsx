@@ -29,16 +29,10 @@ interface SignupData {
   timezone?: string;
   language?: string;
   
-  // Step 3: Schedule
-  wakeUpTime: string;
-  bedTime: string;
-  workStartTime: string;
-  workEndTime: string;
-  
-  // Step 4: Usual Week Schedule
+  // Step 3: Usual Week Schedule
   usualWeekCompleted: boolean;
   
-  // Step 5: Relationship
+  // Step 4: Relationship
   relationshipType: string;
   howLongTogether: string;
   communicationStyle: string;
@@ -46,7 +40,7 @@ interface SignupData {
   futurePlans: string;
   partnerEmail: string;
   
-  // Step 6: Preferences
+  // Step 5: Preferences
   timeFormat: string; // "12h" or "24h"
   measurementSystem: string; // "metric" or "imperial"
   temperatureUnit: string; // "C" or "F"
@@ -78,10 +72,6 @@ export default function SignupPage() {
     country: "",
     isAddressPublic: false,
     avatar: "",
-    wakeUpTime: "07:00",
-    bedTime: "23:00",
-    workStartTime: "09:00",
-    workEndTime: "17:00",
     usualWeekCompleted: false,
     relationshipType: "",
     howLongTogether: "",
@@ -143,7 +133,7 @@ export default function SignupPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 7) {
+    if (currentStep < 6) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -445,63 +435,6 @@ export default function SignupPage() {
   );
 
   const renderStep3 = () => (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Daily Schedule</h2>
-      <p className="text-gray-600 dark:text-gray-300">Help us understand your routine</p>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Wake Up Time
-          </label>
-          <input
-            type="time"
-            value={signupData.wakeUpTime}
-            onChange={(e) => updateField('wakeUpTime', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Bed Time
-          </label>
-          <input
-            type="time"
-            value={signupData.bedTime}
-            onChange={(e) => updateField('bedTime', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Work Start
-          </label>
-          <input
-            type="time"
-            value={signupData.workStartTime}
-            onChange={(e) => updateField('workStartTime', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Work End
-          </label>
-          <input
-            type="time"
-            value={signupData.workEndTime}
-            onChange={(e) => updateField('workEndTime', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderStep4 = () => (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Weekly Schedule</h2>
       <p className="text-gray-600 dark:text-gray-300">Set up your usual weekly schedule. You can adjust this later.</p>
@@ -523,7 +456,7 @@ export default function SignupPage() {
     </div>
   );
 
-  const renderStep5 = () => (
+  const renderStep4 = () => (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Relationship Details</h2>
       <p className="text-gray-600 dark:text-gray-300">Tell us about your relationship</p>
@@ -620,7 +553,7 @@ export default function SignupPage() {
     </div>
   );
 
-  const renderStep6 = () => (
+  const renderStep5 = () => (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Your Preferences</h2>
       <p className="text-gray-600 dark:text-gray-300">Customize your experience with these settings</p>
@@ -725,7 +658,7 @@ export default function SignupPage() {
     </div>
   );
 
-  const renderStep7 = () => (
+  const renderStep6 = () => (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Invite Your Partner</h2>
       <p className="text-gray-600 dark:text-gray-300">Connect with your partner to start your journey together</p>
@@ -841,7 +774,6 @@ export default function SignupPage() {
       case 4: return renderStep4();
       case 5: return renderStep5();
       case 6: return renderStep6();
-      case 7: return renderStep7();
       default: return renderStep1();
     }
   };
@@ -863,13 +795,13 @@ export default function SignupPage() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
-            <span>Step {currentStep} of 7</span>
-            <span>{Math.round((currentStep / 7) * 100)}%</span>
+            <span>Step {currentStep} of 6</span>
+            <span>{Math.round((currentStep / 6) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div 
               className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / 7) * 100}%` }}
+              style={{ width: `${(currentStep / 6) * 100}%` }}
             ></div>
           </div>
         </div>
@@ -931,7 +863,7 @@ export default function SignupPage() {
               Previous
             </button>
 
-            {currentStep < 5 ? (
+            {currentStep < 4 ? (
               <button
                 onClick={nextStep}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
