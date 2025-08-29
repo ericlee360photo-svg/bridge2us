@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendEmailServer, emailTemplates } from '@/lib/emailServer';
+import { sendEmailServer, emailTemplates } from '../../../../../lib/emailServer';
 import crypto from 'crypto';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
