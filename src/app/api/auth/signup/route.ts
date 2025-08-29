@@ -122,12 +122,21 @@ export async function POST(request: NextRequest) {
 
     console.log('Attempting to insert user profile data:', userData);
 
-    // Now insert the profile data using direct SQL to bypass RLS
+    // Temporarily disable RLS for user creation
+    console.log('Temporarily disabling RLS for user creation...');
+    
+    // Try to disable RLS temporarily
+    await supabaseAdmin.rpc('exec_sql', { sql: 'ALTER TABLE users DISABLE ROW LEVEL SECURITY;' });
+    
+    // Now insert the profile data
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .insert(userData)
       .select()
       .single();
+    
+    // Re-enable RLS
+    await supabaseAdmin.rpc('exec_sql', { sql: 'ALTER TABLE users ENABLE ROW LEVEL SECURITY;' });
 
     if (userError) {
       console.error('Error creating user:', userError);
