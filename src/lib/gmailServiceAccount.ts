@@ -3,14 +3,18 @@ import { JWT } from 'google-auth-library';
 
 // Service account configuration for Domain-Wide Delegation
 export class GmailServiceAccount {
-  private jwtClient: JWT;
-  private gmail: any;
+  private jwtClient: JWT | null = null;
+  private gmail: any = null;
+  private isConfigured: boolean = false;
 
   constructor() {
     // Initialize JWT client with service account credentials
     const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
-    if (!privateKey) {
-      throw new Error('GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY is not configured');
+    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    
+    if (!privateKey || !email) {
+      console.warn('Gmail service account credentials not configured - email sending will be disabled');
+      return;
     }
 
     // Handle different private key formats
@@ -28,7 +32,7 @@ export class GmailServiceAccount {
     }
 
     this.jwtClient = new JWT({
-      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      email: email,
       key: formattedKey,
       scopes: [
         'https://www.googleapis.com/auth/gmail.send',
@@ -38,6 +42,7 @@ export class GmailServiceAccount {
     });
 
     this.gmail = google.gmail({ version: 'v1', auth: this.jwtClient });
+    this.isConfigured = true;
   }
 
   /**
@@ -51,6 +56,13 @@ export class GmailServiceAccount {
     replyTo?: string;
     from?: 'NOREPLY' | 'NOTIFICATIONS' | 'SUPPORT' | 'ADMIN';
   }): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured || !this.jwtClient || !this.gmail) {
+      return { 
+        success: false, 
+        error: 'Gmail service account not configured' 
+      };
+    }
+
     try {
       // Ensure we're authenticated
       await this.jwtClient.authorize();
@@ -113,6 +125,14 @@ export class GmailServiceAccount {
    * Check if the send-as alias is properly configured
    */
   async checkSendAsAlias(): Promise<{ exists: boolean; verified: boolean; error?: string }> {
+    if (!this.isConfigured || !this.jwtClient || !this.gmail) {
+      return { 
+        exists: false, 
+        verified: false, 
+        error: 'Gmail service account not configured' 
+      };
+    }
+
     try {
       await this.jwtClient.authorize();
 
@@ -147,6 +167,13 @@ export class GmailServiceAccount {
    * Create or update send-as alias (requires gmail.settings.basic scope)
    */
   async setupSendAsAlias(): Promise<{ success: boolean; error?: string }> {
+    if (!this.isConfigured || !this.jwtClient || !this.gmail) {
+      return { 
+        success: false, 
+        error: 'Gmail service account not configured' 
+      };
+    }
+
     try {
       await this.jwtClient.authorize();
 
