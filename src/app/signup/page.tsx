@@ -208,6 +208,33 @@ function SignupContent() {
   };
 
   const nextStep = () => {
+    // Validate required fields before allowing progression
+    if (currentStep === 1) {
+      if (!signupData.email || !signupData.email.trim()) {
+        alert('Please enter your email address.');
+        return;
+      }
+      if (!signupData.password || !signupData.password.trim()) {
+        alert('Please enter a password.');
+        return;
+      }
+      if (!signupData.firstName || !signupData.firstName.trim()) {
+        alert('Please enter your first name.');
+        return;
+      }
+      if (!signupData.gender) {
+        alert('Please select your gender.');
+        return;
+      }
+    }
+
+    if (currentStep === 2) {
+      if (!signupData.birthday || !signupData.birthday.trim()) {
+        alert('Please enter your birthday.');
+        return;
+      }
+    }
+
     // Validate interests on step 5 (before moving to step 6)
     if (currentStep === 5 && signupData.interests.length < 5) {
       alert('Please select at least 5 interests before continuing.');
@@ -243,9 +270,24 @@ function SignupContent() {
       return;
     }
 
-    // Validate required fields
-    if (!signupData.email || !signupData.password) {
-      alert('Email and password are required.');
+    // Validate required fields with detailed error messages
+    if (!signupData.email || !signupData.email.trim()) {
+      alert('Email address is required.');
+      return;
+    }
+
+    if (!signupData.password || !signupData.password.trim()) {
+      alert('Password is required.');
+      return;
+    }
+
+    if (!signupData.firstName || !signupData.firstName.trim()) {
+      alert('First name is required.');
+      return;
+    }
+
+    if (!signupData.birthday || !signupData.birthday.trim()) {
+      alert('Birthday is required.');
       return;
     }
 
@@ -254,6 +296,14 @@ function SignupContent() {
       alert('Please select at least 5 interests before creating your account.');
       return;
     }
+
+    // Debug logging
+    console.log('Creating account with data:', {
+      email: signupData.email,
+      firstName: signupData.firstName,
+      birthday: signupData.birthday,
+      interests: signupData.interests.length
+    });
 
     try {
       // Create user profile in our database via API
