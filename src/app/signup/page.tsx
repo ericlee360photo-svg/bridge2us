@@ -231,49 +231,74 @@ function SignupContent() {
     }
 
     try {
-      // Create Supabase auth user with email/password
-      const { data, error } = await supabase.auth.signUp({
-        email: signupData.email,
-        password: signupData.password,
-        options: {
-          data: {
-            first_name: signupData.firstName,
-            last_name: signupData.lastName,
-          }
-        }
+      // Create user profile in our database via API
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: signupData.email,
+          password: signupData.password,
+          firstName: signupData.firstName,
+          lastName: signupData.lastName,
+          gender: signupData.gender,
+          birthday: signupData.birthday,
+          address: signupData.address,
+          city: signupData.city,
+          state: signupData.state,
+          country: signupData.country,
+          isAddressPublic: signupData.isAddressPublic,
+          timezone: signupData.timezone || 'UTC',
+          language: signupData.language || 'en',
+          wakeUpTime: signupData.wakeUpTime,
+          bedTime: signupData.bedTime,
+          workStartTime: signupData.workStartTime,
+          workEndTime: signupData.workEndTime,
+          gymTime: signupData.gymTime,
+          schoolTime: signupData.schoolTime,
+          timeFormat: signupData.timeFormat,
+          measurementSystem: signupData.measurementSystem,
+          temperatureUnit: signupData.temperatureUnit,
+          distanceUnit: signupData.distanceUnit,
+          interests: signupData.interests,
+          partnerEmail: signupData.partnerEmail || null,
+          relationshipType: signupData.relationshipType || null,
+          howLongTogether: signupData.howLongTogether || null,
+          communicationStyle: signupData.communicationStyle || null,
+          loveLanguages: signupData.loveLanguages || null,
+          futurePlans: signupData.futurePlans || null
+        }),
       });
 
-      if (error) {
-        console.error('Supabase signup error:', error);
-        alert(error.message || 'Signup failed');
-        return;
+      const result = await response.json();
+
+      if (response.ok) {
+        const dbUserId = result.userId;
+        if (dbUserId) {
+          setUserId(dbUserId);
+          console.log('User created successfully with ID:', dbUserId);
+        }
+
+        // Store user data locally
+        const userData = {
+          id: dbUserId || 'pending-verification',
+          firstName: signupData.firstName,
+          lastName: signupData.lastName,
+          email: signupData.email,
+          avatar: signupData.avatar,
+          timezone: signupData.timezone || "UTC",
+          country: signupData.country,
+          language: signupData.language
+        };
+        await DataStorage.setUser(userData);
+
+        // Proceed to next step
+        nextStep();
+      } else {
+        console.error('Signup API error:', result);
+        alert(result.error || 'Failed to create account');
       }
-
-      const supaUserId = data.user?.id || null;
-      if (supaUserId) {
-        setUserId(supaUserId);
-      }
-
-      // Store minimal user locally for UX continuity
-      const userData = {
-        id: supaUserId || 'pending-verification',
-        firstName: signupData.firstName,
-        lastName: signupData.lastName,
-        email: signupData.email,
-        avatar: signupData.avatar,
-        timezone: signupData.timezone || "UTC",
-        country: signupData.country,
-        language: signupData.language
-      };
-      await DataStorage.setUser(userData);
-
-      // Inform user to check email if confirmation is enabled
-      alert('Account created. Please check your email to confirm your address before signing in.');
-
-      // Proceed to invitation step (optional) or navigate to signin
-      nextStep();
-      // Alternatively redirect to sign-in page:
-      // router.push('/auth/signin');
     } catch (error) {
       console.error('Signup error:', error);
       alert('An error occurred during signup');
@@ -411,9 +436,24 @@ function SignupContent() {
   };
 
   const sendEmailInvite = async () => {
-    if (!signupData.partnerInviteEmail || !userId) return;
+    console.log('sendEmailInvite called');
+    console.log('partnerInviteEmail:', signupData.partnerInviteEmail);
+    console.log('userId:', userId);
+    console.log('firstName:', signupData.firstName);
+    console.log('lastName:', signupData.lastName);
+    
+    if (!signupData.partnerInviteEmail) {
+      alert('Please enter your partner\'s email address');
+      return;
+    }
+    
+    if (!userId) {
+      alert('User ID not found. Please try refreshing the page and starting over.');
+      return;
+    }
     
     try {
+      console.log('Sending request to /api/invite/email');
       const response = await fetch('/api/invite/email', {
         method: 'POST',
         headers: {
@@ -426,10 +466,14 @@ function SignupContent() {
         }),
       });
 
+      console.log('Response status:', response.status);
+      const result = await response.json();
+      console.log('Response result:', result);
+
       if (response.ok) {
         alert('Invitation email sent successfully!');
       } else {
-        alert('Failed to send invitation email. You can copy the link instead.');
+        alert(`Failed to send invitation email: ${result.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Email invite error:', error);

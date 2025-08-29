@@ -32,15 +32,19 @@ export async function POST(request: NextRequest) {
         token: invitationToken,
         status: 'PENDING',
         expires_at: expiresAt.toISOString()
-      });
+      })
+      .select();
 
     if (error) {
       console.error('Error creating invitation:', error);
+      console.error('Error details:', error.message, error.details, error.hint);
       return NextResponse.json(
-        { error: 'Failed to create invitation' },
+        { error: `Failed to create invitation: ${error.message}` },
         { status: 500 }
       );
     }
+
+    console.log('Invitation created successfully:', data);
 
     // Generate the invitation link
     const baseUrl = process.env.NEXTAUTH_URL || 'https://www.bridge2us.app';
