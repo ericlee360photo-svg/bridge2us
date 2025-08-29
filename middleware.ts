@@ -13,7 +13,7 @@ import type { NextRequest } from 'next/server';
 //   localePrefix: 'as-needed',
 // });
 
-export default function middleware(req: NextRequest) {
+export default function middleware() {
   // Ignore everything - return next for all requests
   return NextResponse.next();
 }

@@ -214,8 +214,13 @@ function SignupContent() {
       return;
     }
     
-    // Don't auto-proceed from terms step - account creation handles that
+    // CRITICAL: Prevent bypassing terms agreement
     if (currentStep === 6) {
+      if (!signupData.agreeToTerms) {
+        alert('You must agree to the Terms of Service to continue.');
+        return;
+      }
+      // Even if terms are agreed, don't auto-proceed - account creation handles that
       return;
     }
     
@@ -1182,7 +1187,7 @@ function SignupContent() {
           </p>
           <p>
             <strong>6. Limitation of Liability</strong><br />
-            Bridge2Us is provided "as is" without warranties of any kind, either express or implied.
+            Bridge2Us is provided &quot;as is&quot; without warranties of any kind, either express or implied.
           </p>
         </div>
       </div>
@@ -1215,13 +1220,20 @@ function SignupContent() {
         </div>
 
         {/* Create Account Button */}
-        <div className="pt-4">
+        <div className="pt-4 space-y-3">
           <button
             onClick={handleCreateAccount}
             disabled={!signupData.agreeToTerms}
             className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-pink-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Create Account & Continue
+          </button>
+          
+          <button
+            onClick={prevStep}
+            className="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
+          >
+            ← Go Back
           </button>
         </div>
       </div>
@@ -1280,7 +1292,7 @@ function SignupContent() {
 
       {/* Next Steps */}
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-        <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">What's Next?</h3>
+        <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">What&apos;s Next?</h3>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
@@ -1411,34 +1423,36 @@ function SignupContent() {
           {renderStep()}
 
           {/* Navigation */}
-          <div className="flex justify-between mt-8">
-            <button
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Previous
-            </button>
+          {currentStep !== 6 && (
+            <div className="flex justify-between mt-8">
+              <button
+                onClick={prevStep}
+                disabled={currentStep === 1}
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Previous
+              </button>
 
-            {currentStep < 7 ? (
-              <button
-                onClick={nextStep}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
-              >
-                Next
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                onClick={handleFinishSignup}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
-              >
-                Enter Dashboard
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+              {currentStep < 7 ? (
+                <button
+                  onClick={nextStep}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleFinishSignup}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
+                >
+                  Enter Dashboard
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Login Link */}

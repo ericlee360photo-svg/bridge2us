@@ -1,4 +1,4 @@
-import { M, pairCompatibility, type Lang } from './compatibility';
+import { type Lang } from './compatibility';
 
 export function computeScores(answers: Array<{picked:'a'|'b', aLang:string, bLang:string}>) {
   const counts = { woa:0, aos:0, qt:0, rg:0, pt:0 };

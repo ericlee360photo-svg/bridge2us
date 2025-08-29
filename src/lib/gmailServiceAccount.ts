@@ -1,10 +1,11 @@
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
+import { gmail_v1 } from 'googleapis/build/src/apis/gmail/v1';
 
 // Service account configuration for Domain-Wide Delegation
 export class GmailServiceAccount {
   private jwtClient: JWT | null = null;
-  private gmail: any = null;
+  private gmail: gmail_v1.Gmail | null = null;
   private isConfigured: boolean = false;
 
   constructor() {
@@ -112,7 +113,7 @@ export class GmailServiceAccount {
       });
 
       return { success: true };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Service account email sending error:', error);
       return { 
         success: false, 
@@ -153,7 +154,7 @@ export class GmailServiceAccount {
         exists: true, 
         verified: adminAlias.verificationStatus === 'accepted' 
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error checking send-as alias:', error);
       return { 
         exists: false, 
@@ -195,7 +196,7 @@ export class GmailServiceAccount {
       });
 
       return { success: true };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error setting up send-as alias:', error);
       return { 
         success: false, 

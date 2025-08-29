@@ -3,21 +3,32 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Heart, ArrowRight, Calendar, Clock, AlertTriangle } from "lucide-react";
+import { Heart, ArrowRight, Calendar, Clock } from "lucide-react";
+
+interface UserData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatar: string;
+  timezone: string;
+  country: string;
+  language: string;
+}
 
 export default function HomeClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check for authenticated session first
     if (status === "authenticated" && session?.user) {
       // Store user data in localStorage for our app
-      const extendedUser = session.user as any; // Type assertion for extended user properties
-      const userData = {
+      const extendedUser = session.user as UserData; // Type assertion for extended user properties
+      const userData: UserData = {
         id: extendedUser.id || 'temp-id',
         firstName: extendedUser.firstName || session.user.name?.split(' ')[0] || '',
         lastName: extendedUser.lastName || session.user.name?.split(' ').slice(1).join(' ') || '',
@@ -39,7 +50,7 @@ export default function HomeClient() {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
-        const userData = JSON.parse(storedUser);
+        const userData = JSON.parse(storedUser) as UserData;
         setUser(userData);
         
         // If user exists and there's no specific redirect, go to dashboard

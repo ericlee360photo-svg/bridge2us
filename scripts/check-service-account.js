@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-const fs = require('fs');
-const path = require('path');
 require('dotenv').config({ path: '.env.local' });
 
 console.log('🔍 Checking Google Service Account Setup...\n');
@@ -71,7 +69,7 @@ async function checkServiceAccount() {
           console.log('📝 You have a private key only. You need the full service account JSON to get the client_id.');
           console.log('🔍 Please download the full JSON key file from Google Cloud Console and check the "client_id" field.');
         }
-      } catch (error) {
+      } catch {
         console.log('⚠️ Could not parse service account key for client_id');
       }
     }
@@ -84,8 +82,8 @@ async function checkServiceAccount() {
     console.log('  -d \'{"to":"test@example.com","subject":"Service Account Test","text":"Testing domain-wide delegation"}\'');
     console.log('');
 
-  } catch (error) {
-    console.error('❌ Check failed:', error.message);
+  } catch {
+    console.error('❌ Check failed');
   }
 }
 

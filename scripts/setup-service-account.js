@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-const fs = require('fs');
-const path = require('path');
 require('dotenv').config({ path: '.env.local' });
 
 console.log('🔧 Setting up Google Workspace Domain-Wide Delegation for Bridge2Us...\n');

@@ -123,8 +123,8 @@ export default function SpotifyPlaylists({ userId, partnerName }: SpotifyPlaylis
               <Music className="w-5 h-5 text-white" />
             </div>
             <div>
-                          <h3 className="font-semibold text-gray-800 dark:text-gray-200">{partnerName}'s Playlists</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Loading partner's playlists...</p>
+                          <h3 className="font-semibold text-gray-800 dark:text-gray-200">{partnerName}&apos;s Playlists</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Loading partner&apos;s playlists...</p>
             </div>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function SpotifyPlaylists({ userId, partnerName }: SpotifyPlaylis
             <Music className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200">{partnerName}'s Playlists</h3>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200">{partnerName}&apos;s Playlists</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {playlists.length} playlist{playlists.length !== 1 ? 's' : ''}
             </p>

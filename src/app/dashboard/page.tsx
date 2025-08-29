@@ -1673,7 +1673,7 @@ export default function DashboardPage() {
                                 Password Management
                               </h4>
                               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                                Update your password to keep your account secure. You'll receive a reset link via email.
+                                Update your password to keep your account secure. You&apos;ll receive a reset link via email.
                               </p>
                               
                               <button

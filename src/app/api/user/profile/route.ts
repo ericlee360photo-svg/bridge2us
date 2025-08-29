@@ -63,7 +63,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Convert field names to snake_case for Supabase
-    const supabaseData: any = {};
+    const supabaseData: Record<string, unknown> = {};
     Object.keys(updateData).forEach(key => {
       switch (key) {
         case 'firstName':

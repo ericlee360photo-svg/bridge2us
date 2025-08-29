@@ -162,9 +162,9 @@ export default function SpotifyActivity({ userId, partnerName }: SpotifyActivity
           </div>
           <div>
                       <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-            {partnerName}'s Music Activity
+            {partnerName}&apos;s Music Activity
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Loading partner's music...</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Loading partner&apos;s music...</p>
           </div>
         </div>
         <div className="animate-pulse">
@@ -184,7 +184,7 @@ export default function SpotifyActivity({ userId, partnerName }: SpotifyActivity
           </div>
           <div>
                       <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-            {partnerName}'s Music Activity
+            {partnerName}&apos;s Music Activity
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">Partner not connected to Spotify</p>
           </div>
@@ -201,7 +201,7 @@ export default function SpotifyActivity({ userId, partnerName }: SpotifyActivity
         </div>
         <div>
           <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-            {partnerName}'s Music Activity
+            {partnerName}&apos;s Music Activity
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {activity.currentlyPlaying?.isPlaying ? 'Currently playing' : 'Recently played'}
