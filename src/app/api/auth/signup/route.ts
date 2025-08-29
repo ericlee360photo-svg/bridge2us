@@ -10,7 +10,9 @@ export async function POST(request: NextRequest) {
     
     // Debug environment variables
     console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    console.log('SUPABASE_SERVICE_ROLE_KEY length:', process.env.SUPABASE_SERVICE_ROLE_KEY?.length);
     console.log('Using admin client:', !!supabaseAdmin);
+    console.log('Admin client URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
     
     const {
       email,
@@ -122,12 +124,12 @@ export async function POST(request: NextRequest) {
 
     console.log('Attempting to insert user profile data:', userData);
 
-    // Use service role to insert profile data - RLS is bypassed automatically
-    console.log('Using service role to insert profile data (RLS bypassed)...');
+    // Try direct SQL insertion to completely bypass RLS
+    console.log('Using direct SQL insertion to completely bypass RLS...');
     
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
-      .upsert({
+      .insert({
         id: authUser.user.id,
         email: userData.email,
         first_name: userData.first_name,
