@@ -214,6 +214,11 @@ function SignupContent() {
       return;
     }
     
+    // Don't auto-proceed from terms step - account creation handles that
+    if (currentStep === 6) {
+      return;
+    }
+    
     if (currentStep < 7) {
       setCurrentStep(currentStep + 1);
     }
@@ -305,8 +310,8 @@ function SignupContent() {
         };
         await DataStorage.setUser(userData);
 
-        // Proceed to next step
-        nextStep();
+        // Proceed to completion step (step 7)
+        setCurrentStep(7);
       } else {
         console.error('Signup API error:', result);
         alert(result.error || 'Failed to create account');
@@ -1145,21 +1150,99 @@ function SignupContent() {
     </div>
   );
 
+  const renderTermsStep = () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Terms of Service</h2>
+        <p className="text-gray-600 dark:text-gray-300">Please review and agree to our terms before creating your account</p>
+      </div>
+
+      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 max-h-64 overflow-y-auto">
+        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Bridge2Us Terms of Service</h3>
+        <div className="text-sm text-gray-600 dark:text-gray-300 space-y-3">
+          <p>
+            <strong>1. Acceptance of Terms</strong><br />
+            By using Bridge2Us, you agree to be bound by these Terms of Service and all applicable laws and regulations.
+          </p>
+          <p>
+            <strong>2. Privacy and Data Protection</strong><br />
+            We are committed to protecting your privacy. Your personal information is collected, used, and protected in accordance with our Privacy Policy.
+          </p>
+          <p>
+            <strong>3. User Responsibilities</strong><br />
+            You are responsible for maintaining the confidentiality of your account and for all activities that occur under your account.
+          </p>
+          <p>
+            <strong>4. Acceptable Use</strong><br />
+            You agree to use Bridge2Us only for lawful purposes and in a way that does not infringe the rights of others.
+          </p>
+          <p>
+            <strong>5. Service Availability</strong><br />
+            We strive to maintain service availability but cannot guarantee uninterrupted access to Bridge2Us.
+          </p>
+          <p>
+            <strong>6. Limitation of Liability</strong><br />
+            Bridge2Us is provided "as is" without warranties of any kind, either express or implied.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <label className="flex items-start space-x-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={signupData.agreeToTerms}
+            onChange={(e) => updateField('agreeToTerms', e.target.checked)}
+            className="mt-1 w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
+            required
+          />
+          <div className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="font-medium">I agree to the Terms of Service</span>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              By checking this box, you confirm that you have read, understood, and agree to be bound by our Terms of Service and Privacy Policy.
+            </p>
+          </div>
+        </label>
+
+        <div className="flex gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <Link href="/terms" target="_blank" className="text-pink-600 hover:text-pink-700 underline">
+            View Full Terms of Service
+          </Link>
+          <span>•</span>
+          <Link href="/privacy" target="_blank" className="text-pink-600 hover:text-pink-700 underline">
+            Privacy Policy
+          </Link>
+        </div>
+
+        {/* Create Account Button */}
+        <div className="pt-4">
+          <button
+            onClick={handleCreateAccount}
+            disabled={!signupData.agreeToTerms}
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-pink-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Create Account & Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderStep8 = () => (
     <div className="space-y-6">
       <div className="text-center">
         <div className="flex items-center justify-center gap-2 mb-4">
           <Heart className="w-8 h-8 text-pink-500" />
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Sign Up Complete!</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Account Created Successfully!</h2>
         </div>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
-          We&apos;ll set up your dashboard when your partner joins the journey.
+          Your Bridge2Us account has been created and your profile is ready.
         </p>
       </div>
 
       <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
         <p className="text-sm text-green-800 dark:text-green-200">
-          <strong>Account Created Successfully!</strong> Your profile is ready and waiting for your partner to join.
+          <strong>Welcome to Bridge2Us!</strong> Your account is now active and ready to use.
         </p>
       </div>
 
@@ -1193,16 +1276,49 @@ function SignupContent() {
             <div className="text-sm text-gray-600 dark:text-gray-400">Your interests have been saved for personalization</div>
           </div>
         </div>
+      </div>
 
-        <div className="flex items-center gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-          <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm">⏳</span>
+      {/* Next Steps */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+        <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">What's Next?</h3>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs">1</span>
+            </div>
+            <div className="text-sm text-blue-700 dark:text-blue-300">
+              <strong>Invite your partner</strong> - Send them an invitation to join Bridge2Us
+            </div>
           </div>
-          <div>
-            <div className="font-medium text-gray-800 dark:text-gray-200">Waiting for Partner</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Your dashboard will be fully activated once your partner joins</div>
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs">2</span>
+            </div>
+            <div className="text-sm text-blue-700 dark:text-blue-300">
+              <strong>Explore your dashboard</strong> - Start using Bridge2Us features
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="space-y-3">
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-pink-600 hover:to-purple-700 transition-all duration-200"
+        >
+          Go to Dashboard
+        </button>
+        
+        <button
+          onClick={() => {
+            // Navigate to invitation page or show invitation modal
+            alert('Invitation feature coming soon! You can invite your partner from the dashboard.');
+          }}
+          className="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
+        >
+          Invite Partner Later
+        </button>
       </div>
     </div>
   );
@@ -1214,7 +1330,7 @@ function SignupContent() {
       case 3: return renderStep3();
       case 4: return renderStep5(); // Preferences
       case 5: return renderStep7(); // Interests
-      case 6: return renderStep6(); // Partner invitation
+      case 6: return renderTermsStep(); // Terms of Service
       case 7: return renderStep8(); // Completion
       default: return renderStep1();
     }
