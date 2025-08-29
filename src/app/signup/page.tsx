@@ -208,13 +208,13 @@ function SignupContent() {
   };
 
   const nextStep = () => {
-    // Validate interests on step 6 (before moving to step 7)
-    if (currentStep === 6 && signupData.interests.length < 5) {
+    // Validate interests on step 5 (before moving to step 6)
+    if (currentStep === 5 && signupData.interests.length < 5) {
       alert('Please select at least 5 interests before continuing.');
       return;
     }
     
-    if (currentStep < 8) {
+    if (currentStep < 7) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -1212,18 +1212,17 @@ function SignupContent() {
       case 1: return renderStep1();
       case 2: return renderStep2();
       case 3: return renderStep3();
-      case 4: return renderStep4(); // Relationship details
-      case 5: return renderStep5(); // Preferences
-      case 6: return renderStep7(); // Interests
-      case 7: return renderStep6(); // Partner invitation
-      case 8: return renderStep8(); // Completion
+      case 4: return renderStep5(); // Preferences
+      case 5: return renderStep7(); // Interests
+      case 6: return renderStep6(); // Partner invitation
+      case 7: return renderStep8(); // Completion
       default: return renderStep1();
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className={`w-full ${currentStep === 3 || currentStep === 6 ? 'max-w-4xl' : 'max-w-md'}`}>
+      <div className={`w-full ${currentStep === 3 || currentStep === 5 ? 'max-w-4xl' : 'max-w-md'}`}>
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -1238,7 +1237,7 @@ function SignupContent() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
-            <span>Step {currentStep} of 8</span>
+            <span>Step {currentStep} of 7</span>
             <span>{Math.round((currentStep / 7) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
