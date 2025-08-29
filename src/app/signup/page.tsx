@@ -372,7 +372,9 @@ function SignupContent() {
         setCurrentStep(7);
       } else {
         console.error('Signup API error:', result);
-        alert(result.error || 'Failed to create account');
+        console.error('Response status:', response.status);
+        console.error('Full response:', result);
+        alert(`Failed to create account: ${result.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Signup error:', error);

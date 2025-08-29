@@ -6,6 +6,8 @@ import crypto from 'crypto';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('Received signup request with body:', body);
+    
     const {
       email,
       password,
@@ -68,42 +70,61 @@ export async function POST(request: NextRequest) {
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
+    // Prepare user data for insert
+    const userData = {
+      email,
+      first_name: firstName,
+      last_name: lastName,
+      gender,
+      timezone: timezone || 'UTC',
+      address,
+      city,
+      state,
+      country,
+      language: language || 'en',
+      is_address_public: isAddressPublic,
+      birthday: new Date(birthday).toISOString(),
+      wake_up_time: wakeUpTime,
+      bed_time: bedTime,
+      work_start_time: workStartTime,
+      work_end_time: workEndTime,
+      gym_time: gymTime,
+      school_time: schoolTime,
+      measurement_system: measurementSystem,
+      temperature_unit: temperatureUnit,
+      distance_unit: distanceUnit,
+      email_verified: true, // Bypass email verification for testing
+      email_verification_token: emailVerificationToken,
+      email_verification_expires: emailVerificationExpires.toISOString()
+    };
+
+    console.log('Attempting to insert user data:', userData);
+
     // Create user
     const { data: user, error: userError } = await supabase
       .from('users')
-      .insert({
-        email,
-        first_name: firstName,
-        last_name: lastName,
-        gender,
-        timezone: timezone || 'UTC',
-        address,
-        city,
-        state,
-        country,
-        language: language || 'en',
-        is_address_public: isAddressPublic,
-        birthday: new Date(birthday).toISOString(),
-        wake_up_time: wakeUpTime,
-        bed_time: bedTime,
-        work_start_time: workStartTime,
-        work_end_time: workEndTime,
-        gym_time: gymTime,
-        school_time: schoolTime,
-        measurement_system: measurementSystem,
-        temperature_unit: temperatureUnit,
-        distance_unit: distanceUnit,
-        email_verified: true, // Bypass email verification for testing
-        email_verification_token: emailVerificationToken,
-        email_verification_expires: emailVerificationExpires.toISOString()
-      })
+      .insert(userData)
       .select()
       .single();
 
     if (userError) {
       console.error('Error creating user:', userError);
+      console.error('User data that failed:', {
+        email,
+        firstName,
+        lastName,
+        gender,
+        birthday,
+        timezone,
+        address,
+        city,
+        state,
+        country,
+        language,
+        isAddressPublic
+      });
       return NextResponse.json(
-        { error: 'Failed to create user' },
+        { error: `Failed to create user: ${userError.message}` },
         { status: 500 }
       );
     }
