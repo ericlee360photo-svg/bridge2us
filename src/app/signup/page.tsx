@@ -933,34 +933,7 @@ function SignupContent() {
           </select>
         </div>
 
-        {/* Terms of Use Agreement */}
-        <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-          <div className="flex items-start space-x-3">
-            <input
-              type="checkbox"
-              id="agreeToTerms"
-              checked={signupData.agreeToTerms}
-              onChange={(e) => updateField('agreeToTerms', e.target.checked)}
-              className="mt-1 h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
-              required
-            />
-            <label htmlFor="agreeToTerms" className="text-sm text-gray-700 dark:text-gray-300">
-              I agree to the{' '}
-              <Link 
-                href="/terms" 
-                target="_blank"
-                className="text-pink-600 hover:text-pink-500 underline inline-flex items-center gap-1"
-              >
-                Terms of Use
-                <ExternalLink className="w-3 h-3" />
-              </Link>
-              {' '}and acknowledge that I have read and understood them.
-            </label>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-7">
-            By checking this box, you agree to be bound by our terms and conditions.
-          </p>
-        </div>
+
 
         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-200">
