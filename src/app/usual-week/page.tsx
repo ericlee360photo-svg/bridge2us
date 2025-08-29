@@ -1,4 +1,5 @@
-// e.g. src/app/(onboarding)/usual-week/page.tsx
+"use client";
+
 import WeeklyScheduleWizard from "@/weekscheduler/UsualWeekWizard";
 
 export default function UsualWeek() {
