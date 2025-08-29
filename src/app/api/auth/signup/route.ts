@@ -70,16 +70,14 @@ export async function POST(request: NextRequest) {
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Prepare user data for insert
+    // Prepare user data for insert - only include fields that exist in the database schema
     const userData = {
       email,
       first_name: firstName,
       last_name: lastName,
       gender,
       timezone: timezone || 'UTC',
-      address,
-      city,
-      state,
+      address, // Only address exists, not city/state
       country,
       language: language || 'en',
       is_address_public: isAddressPublic,
@@ -117,8 +115,6 @@ export async function POST(request: NextRequest) {
         birthday,
         timezone,
         address,
-        city,
-        state,
         country,
         language,
         isAddressPublic
