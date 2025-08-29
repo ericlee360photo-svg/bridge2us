@@ -135,7 +135,7 @@ export default function InterestsSelector({
 
       {/* Interests Grid */}
       <div className="max-h-96 overflow-y-auto">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredInterests.map(interest => {
             const isSelected = selectedInterests.includes(interest.id);
             const isDisabled = !isSelected && isMaxReached;
@@ -145,7 +145,7 @@ export default function InterestsSelector({
                 key={interest.id}
                 onClick={() => handleInterestToggle(interest.id)}
                 disabled={isDisabled}
-                className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${
+                className={`p-4 rounded-lg border-2 transition-all duration-200 text-left relative ${
                   isSelected
                     ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20 text-pink-800 dark:text-pink-200 shadow-md scale-105'
                     : isDisabled
@@ -153,13 +153,13 @@ export default function InterestsSelector({
                     : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-pink-300 dark:hover:border-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/10 hover:scale-105'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{interest.emoji}</span>
-                  <span className="text-sm font-medium truncate">{interest.label}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">{interest.emoji}</span>
+                  <span className="text-sm font-medium">{interest.label}</span>
                 </div>
                 {isSelected && (
-                  <div className="absolute top-1 right-1">
-                    <svg className="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="absolute top-2 right-2">
+                    <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </div>

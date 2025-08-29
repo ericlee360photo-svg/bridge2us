@@ -1094,7 +1094,7 @@ function SignupContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="w.full max-w-md">
+      <div className={`w-full ${currentStep === 6 ? 'max-w-4xl' : 'max-w-md'}`}>
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
