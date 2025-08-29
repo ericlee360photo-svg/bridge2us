@@ -8,7 +8,7 @@ import ProfilePictureUpload from "@/components/ProfilePictureUpload";
 import { DataStorage } from "@/lib/storage";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import UsualWeekWizard from "@/weekscheduler/UsualWeekWizard";
+import WeeklyScheduleWizard from "@/weekscheduler/UsualWeekWizard";
 import "@/sharedschedule/schedule.css";
 import { useSearchParams } from "next/navigation";
 import InterestsSelector from "@/components/InterestsSelector";
@@ -744,10 +744,14 @@ function SignupContent() {
       
       {/* Usual Week Wizard */}
       <div className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden w-full">
-        <UsualWeekWizard
-          userId={userId || 'temp-user-id'}
-          tz={signupData.timezone || 'UTC'}
-          onComplete={handleUsualWeekComplete}
+        <WeeklyScheduleWizard
+          initialBlocks={[]}
+          onSave={(blocks) => {
+            // Store the schedule blocks
+            localStorage.setItem('usualWeekBlocks', JSON.stringify(blocks));
+            // Mark as completed and proceed to next step
+            handleUsualWeekComplete();
+          }}
         />
       </div>
     </div>

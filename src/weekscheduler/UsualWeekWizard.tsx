@@ -37,6 +37,35 @@ const SNAP = 15; // minutes
 const COLS = 7;
 const ROWS = 24 * (60 / SNAP); // 96 rows
 
+// Create default sleep blocks for each day
+const createDefaultSleepBlocks = (): Block[] => {
+  const blocks: Block[] = [];
+  const now = Date.now();
+  
+  // For each day (0-6, Sunday to Saturday)
+  for (let day = 0; day < 7; day++) {
+    // Sleep block 1: 12:00 AM - 5:00 AM (0 minutes to 300 minutes)
+    blocks.push({
+      id: `sleep-${day}-1-${now}`,
+      day: day as DayIndex,
+      startMin: 0, // 12:00 AM
+      endMin: 300, // 5:00 AM
+      kind: "busy"
+    });
+    
+    // Sleep block 2: 11:00 PM - 12:00 AM (1320 minutes to 1440 minutes)
+    blocks.push({
+      id: `sleep-${day}-2-${now}`,
+      day: day as DayIndex,
+      startMin: 1320, // 11:00 PM
+      endMin: 1440, // 12:00 AM (next day)
+      kind: "busy"
+    });
+  }
+  
+  return blocks;
+};
+
 function snapTo15(mins: number) {
   return Math.round(mins / SNAP) * SNAP;
 }
@@ -60,7 +89,13 @@ const WeeklyScheduleWizard: React.FC<WeeklyScheduleWizardProps> = ({
   onSave,
   kind = "busy",
 }) => {
-  const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
+  // Initialize with default sleep blocks if no initial blocks are provided
+  const [blocks, setBlocks] = useState<Block[]>(() => {
+    if (initialBlocks.length === 0) {
+      return createDefaultSleepBlocks();
+    }
+    return initialBlocks;
+  });
   const [drag, setDrag] = useState<null | {
     day: DayIndex;
     startMin: number; // snapped
@@ -141,7 +176,9 @@ const WeeklyScheduleWizard: React.FC<WeeklyScheduleWizardProps> = ({
       {/* Header card */}
       <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-slate-200">
         <h2 className="text-xl font-semibold">Weekly Schedule</h2>
-        <p className="text-sm text-slate-400">Click‑drag to add a {kind} block. Click a block to delete. 15‑minute steps.</p>
+        <p className="text-sm text-slate-400">
+          Default sleep blocks (12a-5a, 11p-12a) are pre-filled. Click‑drag to add more {kind} blocks. Click a block to delete. 15‑minute steps.
+        </p>
       </div>
 
       {/* Grid wrapper */}
