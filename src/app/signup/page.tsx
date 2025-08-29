@@ -1149,7 +1149,7 @@ function SignupContent() {
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Sign Up Complete!</h2>
         </div>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
-          We'll set up your dashboard when your partner joins the journey.
+          We&apos;ll set up your dashboard when your partner joins the journey.
         </p>
       </div>
 

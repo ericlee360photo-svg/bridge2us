@@ -135,7 +135,7 @@ export default function FeaturesPage() {
                         <div className="text-gray-400">Home Location</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-gray-300">Alex's Time</div>
+                        <div className="text-gray-300">Alex&apos;s Time</div>
                         <div className="font-semibold">04:17 PM</div>
                         <div className="text-gray-400">Aug 27, 2025</div>
                         <div className="text-gray-400">New York, USA</div>
@@ -172,7 +172,7 @@ export default function FeaturesPage() {
                         <div className="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold">A</div>
                         <div className="flex-1">
                           <div className="flex justify-between text-sm mb-1">
-                            <span>Alex's Progress</span>
+                            <span>Alex&apos;s Progress</span>
                             <span>60%</span>
                           </div>
                           <div className="w-full bg-gray-700 rounded-full h-2">
@@ -196,7 +196,7 @@ export default function FeaturesPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Alex's Profile */}
                     <div className="bg-gray-800 rounded-xl p-4">
-                      <h3 className="font-semibold mb-3">Alex's Profile</h3>
+                      <h3 className="font-semibold mb-3">Alex&apos;s Profile</h3>
                       <div className="flex items-center space-x-3 mb-3">
                         <div className="w-10 h-10 bg-gray-600 rounded-full"></div>
                         <div>

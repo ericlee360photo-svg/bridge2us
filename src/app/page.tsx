@@ -102,7 +102,7 @@ export default function Home(){
                 Shared Music Experience
               </h3>
               <p className="text-gray-300 mb-4">
-                Connect your Spotify accounts to share playlists, see what you're both listening to, and create shared musical memories.
+                Connect your Spotify accounts to share playlists, see what you&apos;re both listening to, and create shared musical memories.
               </p>
               <ul className="text-sm text-gray-400 space-y-1">
                 <li>• Collaborative playlists</li>

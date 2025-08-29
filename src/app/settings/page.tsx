@@ -79,7 +79,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleScheduleSave = async (blocks: any[]) => {
+  const handleScheduleSave = async (blocks: unknown[]) => {
     try {
       // Save schedule blocks to localStorage or API
       localStorage.setItem('usualWeekBlocks', JSON.stringify(blocks));

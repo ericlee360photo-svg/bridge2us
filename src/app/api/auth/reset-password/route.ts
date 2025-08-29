@@ -114,7 +114,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Hash the new password
-    const bcrypt = require('bcryptjs');
+    const bcrypt = await import('bcryptjs');
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     // Update user password
