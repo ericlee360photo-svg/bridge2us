@@ -44,8 +44,8 @@ export default function UsualWeekWizard({ userId, tz, onComplete }: UsualWeekWiz
   }
 
   return (
-    <div style={{ padding: 16, background:'#0f1115', minHeight:'100vh' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: 16, background:'#0f1115', minHeight:'100vh', width: '100%' }}>
+      <div style={{ maxWidth: '100%', margin: '0 auto', padding: '0 16px' }}>
         <h2 style={{ color:'#eaeef9', textAlign:'center', marginBottom: '24px' }}>
           Set Your Usual Week Schedule
         </h2>
@@ -53,11 +53,13 @@ export default function UsualWeekWizard({ userId, tz, onComplete }: UsualWeekWiz
           This will be your default schedule. You can adjust it week by week later.
         </p>
         
-        <WeekScheduler 
-          tzA={tz}
-          value={blocks}
-          onChange={setBlocks}
-        />
+        <div style={{ overflowX: 'auto', marginBottom: '32px' }}>
+          <WeekScheduler 
+            tzA={tz}
+            value={blocks}
+            onChange={setBlocks}
+          />
+        </div>
         
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
           <button

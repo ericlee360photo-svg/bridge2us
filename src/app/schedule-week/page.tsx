@@ -72,8 +72,8 @@ export default function ScheduleWeekDemo() {
   }
 
   return (
-    <div style={{ padding: 16, background:'#0f1115', minHeight:'100vh' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: 16, background:'#0f1115', minHeight:'100vh', width: '100%' }}>
+      <div style={{ maxWidth: '100%', margin: '0 auto', padding: '0 16px' }}>
         <h2 style={{ color:'#eaeef9', textAlign:'center', marginBottom: '24px' }}>
           This Week&apos;s Schedule
         </h2>
@@ -81,11 +81,13 @@ export default function ScheduleWeekDemo() {
           Based on your usual week with any adjustments for this specific week.
         </p>
         
-        <WeekScheduler 
-          tzA={usualWeek.tz}
-          value={blocks}
-          onChange={handleBlocksChange}
-        />
+        <div style={{ overflowX: 'auto', marginBottom: '32px' }}>
+          <WeekScheduler 
+            tzA={usualWeek.tz}
+            value={blocks}
+            onChange={handleBlocksChange}
+          />
+        </div>
         
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
           <button
