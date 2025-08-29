@@ -38,167 +38,33 @@ export async function sendEmail(emailData: EmailData): Promise<{ success: boolea
 
 // Pre-built email templates
 export const emailTemplates = {
-  welcome: (userName: string, verificationLink?: string) => ({
-    subject: 'Welcome to Bridge2Us! 🎉',
-    from: 'NOTIFICATIONS' as const,
+  welcome: (userName: string, verificationUrl?: string) => ({
+    subject: `Welcome to Bridge2Us, ${userName}!`,
+    text: `Welcome to Bridge2Us, ${userName}!\n\nWe're excited to have you join our community.\n\n${verificationUrl ? `Please verify your email by clicking this link: ${verificationUrl}` : ''}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <div style="background: linear-gradient(135deg, #ec4899, #8b5cf6); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Bridge2Us!</h1>
-          <p style="color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0;">Your journey to staying connected begins here</p>
-        </div>
-        
-        <div style="padding: 30px;">
-          <p style="font-size: 18px; color: #333; margin-bottom: 20px;">Hi ${userName},</p>
-          
-          <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
-            Welcome to Bridge2Us! We're excited to help you stay connected with your partner across any distance. 
-            Whether you're in a long-distance relationship or just want to strengthen your bond, we're here to help.
-          </p>
-          
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
-            <h3 style="color: #333; margin-top: 0;">Here's what you can do with Bridge2Us:</h3>
-            <ul style="color: #666; line-height: 1.8;">
-              <li>📅 <strong>Sync your calendars</strong> and coordinate schedules seamlessly</li>
-              <li>🌍 <strong>Bridge time zones</strong> with real-time displays</li>
-              <li>🎵 <strong>Share music experiences</strong> with Spotify integration</li>
-              <li>📝 <strong>Keep a shared journal</strong> of your journey together</li>
-              <li>📍 <strong>Plan meetups</strong> with countdown timers</li>
-              <li>💕 <strong>Stay connected</strong> no matter the distance</li>
-            </ul>
-          </div>
-          
-          ${verificationLink ? `
-          <div style="background: #e8f5e8; border: 1px solid #4caf50; border-radius: 8px; padding: 20px; margin: 25px 0; text-align: center;">
-            <p style="color: #2e7d32; margin: 0 0 15px 0; font-weight: bold;">🔐 Verify Your Email Address</p>
-            <p style="color: #2e7d32; margin: 0 0 20px 0;">Please verify your email address to complete your account setup:</p>
-            <a href="${verificationLink}" style="background: #4caf50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Verify Email Address</a>
-          </div>
-          ` : ''}
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="https://www.bridge2us.app/dashboard" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 15px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
-              🚀 Get Started
-            </a>
-          </div>
-          
-          <div style="border-top: 1px solid #eee; padding-top: 25px; margin-top: 30px;">
-            <p style="color: #999; font-size: 14px; margin: 0;">
-              Best regards,<br>
-              <strong>The Bridge2Us Team</strong><br>
-              <a href="mailto:support@bridge2us.app" style="color: #ec4899;">support@bridge2us.app</a>
-            </p>
-          </div>
-        </div>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">Welcome to Bridge2Us, ${userName}!</h1>
+        <p>We're excited to have you join our community.</p>
+        ${verificationUrl ? `<p><a href="${verificationUrl}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Your Email</a></p>` : ''}
+        <p>Best regards,<br>The Bridge2Us Team</p>
       </div>
     `,
-    text: `
-Welcome to Bridge2Us!
-
-Hi ${userName},
-
-Welcome to Bridge2Us! We're excited to help you stay connected with your partner across any distance. 
-Whether you're in a long-distance relationship or just want to strengthen your bond, we're here to help.
-
-Here's what you can do with Bridge2Us:
-- Sync your calendars and coordinate schedules seamlessly
-- Bridge time zones with real-time displays
-- Share music experiences with Spotify integration
-- Keep a shared journal of your journey together
-- Plan meetups with countdown timers
-- Stay connected no matter the distance
-
-${verificationLink ? `
-🔐 Verify Your Email Address
-Please verify your email address to complete your account setup:
-${verificationLink}
-` : ''}
-
-Ready to get started? Visit your dashboard: https://www.bridge2us.app/dashboard
-
-Best regards,
-The Bridge2Us Team
-support@bridge2us.app
-    `
+    from: 'NOREPLY' as const
   }),
-
-  partnerInvitation: (inviterName: string, invitationLink: string, inviterEmail?: string) => {
-    // Extract first name from inviterName
-    const firstName = inviterName.split(' ')[0];
-    
-    return {
-      subject: `${firstName} has invited you to create an account!`,
-      from: 'NOTIFICATIONS' as const,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <div style="background: linear-gradient(135deg, #ec4899, #8b5cf6); padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Hello! 👋</h1>
-            <p style="color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0;">${firstName} wants to connect with you</p>
-          </div>
-          
-          <div style="padding: 30px;">
-            <p style="font-size: 18px; color: #333; margin-bottom: 20px;">Hello!</p>
-            
-            <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
-              <strong>${inviterName}</strong> has invited you to join Bridge2Us, a platform designed to help couples stay connected across any distance.
-            </p>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
-              <h3 style="color: #333; margin-top: 0;">Key Features:</h3>
-              <ul style="color: #666; line-height: 1.8;">
-                <li>📅 <strong>Smart Calendar Sync</strong> - Coordinate your schedules seamlessly</li>
-                <li>🌍 <strong>Timezone Bridge</strong> - See both your times at a glance</li>
-                <li>🎵 <strong>Shared Music Experience</strong> - Connect through Spotify integration</li>
-                <li>📝 <strong>Shared Journal</strong> - Keep your memories together</li>
-                <li>📍 <strong>Meetup Planning</strong> - Countdown to your next reunion</li>
-              </ul>
-            </div>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${invitationLink}" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 15px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
-                Create Your Account
-              </a>
-            </div>
-            
-            <div style="background: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px; padding: 20px; margin: 25px 0;">
-              <p style="color: #1976d2; margin: 0; font-size: 14px;">
-                🔒 <strong>Secure Invitation:</strong> This link will automatically connect your accounts when you sign up. 
-                Expires in 7 days.
-              </p>
-            </div>
-            
-            <div style="border-top: 1px solid #eee; padding-top: 25px; margin-top: 30px;">
-              <p style="color: #999; font-size: 14px; margin: 0;">
-                Best regards,<br>
-                <strong>The Bridge2Us Team</strong><br>
-                <a href="mailto:support@bridge2us.app" style="color: #ec4899;">support@bridge2us.app</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      `,
-      text: `
-Hello!
-
-${inviterName} has invited you to join Bridge2Us, a platform designed to help couples stay connected across any distance.
-
-Key Features:
-- Smart Calendar Sync - Coordinate your schedules seamlessly
-- Timezone Bridge - See both your times at a glance  
-- Shared Music Experience - Connect through Spotify integration
-- Shared Journal - Keep your memories together
-- Meetup Planning - Countdown to your next reunion
-
-Create your account: ${invitationLink}
-
-🔒 Secure Invitation: This link will automatically connect your accounts when you sign up. Expires in 7 days.
-
-Best regards,
-The Bridge2Us Team
-support@bridge2us.app
-      `
-    };
-  },
+  
+  partnerInvitation: (inviterName: string, invitationUrl: string) => ({
+    subject: `${inviterName} invited you to Bridge2Us!`,
+    text: `${inviterName} has invited you to join Bridge2Us!\n\nClick this link to accept the invitation: ${invitationUrl}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">You've been invited to Bridge2Us!</h1>
+        <p>${inviterName} has invited you to join our community.</p>
+        <p><a href="${invitationUrl}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Accept Invitation</a></p>
+        <p>Best regards,<br>The Bridge2Us Team</p>
+      </div>
+    `,
+    from: 'NOREPLY' as const
+  }),
 
   meetupReminder: (partnerName: string, meetupTitle: string, meetupDate: string, countdown: string) => ({
     subject: `Meetup Reminder: ${meetupTitle} 🗓️`,
