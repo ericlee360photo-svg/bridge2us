@@ -143,7 +143,7 @@ export class GmailServiceAccount {
 
       const sendAsList = response.data.sendAs || [];
       const adminAlias = sendAsList.find(
-        (alias: any) => alias.sendAsEmail === 'admin@bridge2us.app'
+        (alias: { sendAsEmail: string; verificationStatus?: string }) => alias.sendAsEmail === 'admin@bridge2us.app'
       );
 
       if (!adminAlias) {

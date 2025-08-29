@@ -1,6 +1,6 @@
 // middleware.ts
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+// import type { NextRequest } from 'next/server';
 // import createMiddleware from 'next-intl/middleware';
 // import { locales } from './i18n';
 

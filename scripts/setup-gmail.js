@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { google } = require('googleapis');
 require('dotenv').config({ path: '.env.local' });
 

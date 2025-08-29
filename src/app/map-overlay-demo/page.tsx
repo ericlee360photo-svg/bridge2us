@@ -1,13 +1,20 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import DotWorldMap from '@/components/DotWorldMap';
 import MapCards from '@/components/MapCards';
 import { project } from '@/lib/geo';
 import { svgToViewport } from '@/lib/mapCoords';
 
+interface Card {
+  id: string;
+  x: number;
+  y: number;
+  content: React.ReactNode;
+}
+
 export default function MapOverlayDemo() {
-  const [cards, setCards] = useState<any[]>([]);
+  const [cards, setCards] = useState<Card[]>([]);
   const [svgElement, setSvgElement] = useState<SVGSVGElement | null>(null);
   const [simulateRefetch, setSimulateRefetch] = useState(false);
   
@@ -50,7 +57,7 @@ export default function MapOverlayDemo() {
         )
       }
     ]);
-  }, [svgElement]);
+  }, [svgElement, nyc.lat, nyc.lon, paris.lat, paris.lon]);
 
   // Simulate React Query refetch every 5 seconds
   useEffect(() => {
