@@ -24,6 +24,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import LayoutEditor, { type WidgetConfig } from "@/components/LayoutEditor";
 import { DataStorage } from "@/lib/storage";
 import Link from "next/link";
+import WeeklyScheduleWizard from "@/weekscheduler/UsualWeekWizard";
 
 interface UserSettings {
   // Personal Info
@@ -1852,87 +1853,19 @@ export default function DashboardPage() {
                   {userSettingsTab === 'schedule' && (
                     <div className="space-y-6">
                       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Weekly Schedule</h3>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        Set your usual weekly schedule. This will be your default template for planning.
+                      </p>
                       
-                      <div className="space-y-4">
-                        {Object.entries(userSettings.weeklySchedule).map(([day, schedule]) => (
-                          <div key={day} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                            <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-3 capitalize">{day}</h4>
-                            
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  Wake Up
-                                </label>
-                                <input
-                                  type="time"
-                                  value={schedule.wakeUpTime}
-                                  onChange={(e) => updateSchedule(day, 'wakeUpTime', e.target.value)}
-                                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  Bed Time
-                                </label>
-                                <input
-                                  type="time"
-                                  value={schedule.bedTime}
-                                  onChange={(e) => updateSchedule(day, 'bedTime', e.target.value)}
-                                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  Work Start
-                                </label>
-                                <input
-                                  type="time"
-                                  value={schedule.workStartTime}
-                                  onChange={(e) => updateSchedule(day, 'workStartTime', e.target.value)}
-                                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  Work End
-                                </label>
-                                <input
-                                  type="time"
-                                  value={schedule.workEndTime}
-                                  onChange={(e) => updateSchedule(day, 'workEndTime', e.target.value)}
-                                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  Gym Time
-                                </label>
-                                <input
-                                  type="time"
-                                  value={schedule.gymTime}
-                                  onChange={(e) => updateSchedule(day, 'gymTime', e.target.value)}
-                                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  School Time
-                                </label>
-                                <input
-                                  type="time"
-                                  value={schedule.schoolTime}
-                                  onChange={(e) => updateSchedule(day, 'schoolTime', e.target.value)}
-                                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                        <WeeklyScheduleWizard
+                          initialBlocks={[]}
+                          onSave={(blocks) => {
+                            // Save schedule blocks to localStorage or API
+                            localStorage.setItem('usualWeekBlocks', JSON.stringify(blocks));
+                            alert('Schedule saved successfully!');
+                          }}
+                        />
                       </div>
                     </div>
                   )}

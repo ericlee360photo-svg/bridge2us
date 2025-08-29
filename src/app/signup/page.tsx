@@ -34,6 +34,12 @@ interface SignupData {
   
   // Step 3: Usual Week Schedule
   usualWeekCompleted: boolean;
+  wakeUpTime: string;
+  bedTime: string;
+  workStartTime: string;
+  workEndTime: string;
+  gymTime: string;
+  schoolTime: string;
   
   // Step 4: Relationship
   relationshipType: string;
@@ -84,6 +90,12 @@ function SignupContent() {
     isAddressPublic: false,
     avatar: "",
     usualWeekCompleted: false,
+    wakeUpTime: "07:00",
+    bedTime: "23:00",
+    workStartTime: "09:00",
+    workEndTime: "17:00",
+    gymTime: "18:00",
+    schoolTime: "08:00",
     relationshipType: "",
     howLongTogether: "",
     communicationStyle: "",
@@ -196,13 +208,13 @@ function SignupContent() {
   };
 
   const nextStep = () => {
-    // Validate interests on step 5 (before moving to step 6)
-    if (currentStep === 5 && signupData.interests.length < 5) {
+    // Validate interests on step 6 (before moving to step 7)
+    if (currentStep === 6 && signupData.interests.length < 5) {
       alert('Please select at least 5 interests before continuing.');
       return;
     }
     
-    if (currentStep < 7) {
+    if (currentStep < 8) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -306,10 +318,20 @@ function SignupContent() {
   };
 
   const generateMagicLink = async () => {
-    if (!userId) return;
+    console.log('generateMagicLink called');
+    console.log('userId:', userId);
+    console.log('firstName:', signupData.firstName);
+    console.log('lastName:', signupData.lastName);
+    console.log('email:', signupData.email);
+    
+    if (!userId) {
+      alert('User ID not found. Please try refreshing the page and starting over.');
+      return;
+    }
     
     setIsGeneratingLink(true);
     try {
+      console.log('Sending request to /api/invite/generate');
       const response = await fetch('/api/invite/generate', {
         method: 'POST',
         headers: {
@@ -322,15 +344,17 @@ function SignupContent() {
         }),
       });
 
+      console.log('Response status:', response.status);
+      const result = await response.json();
+      console.log('Response result:', result);
+
       if (response.ok) {
-        const result = await response.json();
         setMagicLink(result.magicLink);
         setInvitationToken(result.invitationToken);
-        console.log('Magic link generated successfully');
+        console.log('Magic link generated successfully:', result.magicLink);
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to generate magic link:', errorData);
-        alert('Failed to generate invitation link. Please try again.');
+        console.error('Failed to generate magic link:', result);
+        alert(`Failed to generate invitation link: ${result.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error generating magic link:', error);
@@ -694,7 +718,7 @@ function SignupContent() {
       </div>
       
       {/* Usual Week Wizard */}
-      <div className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+      <div className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden w-full">
         <UsualWeekWizard
           userId={userId || 'temp-user-id'}
           tz={signupData.timezone || 'UTC'}
@@ -1159,17 +1183,18 @@ function SignupContent() {
       case 1: return renderStep1();
       case 2: return renderStep2();
       case 3: return renderStep3();
-      case 4: return renderStep5(); // Skip step 4, go directly to preferences
-      case 5: return renderStep7(); // Interests
-      case 6: return renderStep6(); // Partner invitation (moved to last)
-      case 7: return renderStep8(); // Completion
+      case 4: return renderStep4(); // Relationship details
+      case 5: return renderStep5(); // Preferences
+      case 6: return renderStep7(); // Interests
+      case 7: return renderStep6(); // Partner invitation
+      case 8: return renderStep8(); // Completion
       default: return renderStep1();
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className={`w-full ${currentStep === 6 ? 'max-w-4xl' : 'max-w-md'}`}>
+      <div className={`w-full ${currentStep === 3 || currentStep === 6 ? 'max-w-4xl' : 'max-w-md'}`}>
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -1184,7 +1209,7 @@ function SignupContent() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
-            <span>Step {currentStep} of 7</span>
+            <span>Step {currentStep} of 8</span>
             <span>{Math.round((currentStep / 7) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">

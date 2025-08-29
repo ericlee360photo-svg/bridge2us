@@ -24,23 +24,26 @@ export async function POST(request: NextRequest) {
 
     // Store the invitation in Supabase
     const { data, error } = await supabase
-      .from('partner_invitations')
+      .from('invitations')
       .insert({
-        invitation_token: invitationToken,
-        inviter_id: inviterId,
-        inviter_name: inviterName,
-        inviter_email: inviterEmail,
-        expires_at: expiresAt.toISOString(),
-        status: 'pending'
-      });
+        token: invitationToken,
+        sender_id: inviterId,
+        receiver_email: inviterEmail,
+        status: 'PENDING',
+        expires_at: expiresAt.toISOString()
+      })
+      .select();
 
     if (error) {
       console.error('Error creating invitation:', error);
+      console.error('Error details:', error.message, error.details, error.hint);
       return NextResponse.json(
-        { error: 'Failed to create invitation' },
+        { error: `Failed to create invitation: ${error.message}` },
         { status: 500 }
       );
     }
+
+    console.log('Invitation created successfully:', data);
 
     // Generate the magic link
     const baseUrl = process.env.NEXTAUTH_URL || 'https://www.bridge2us.app';

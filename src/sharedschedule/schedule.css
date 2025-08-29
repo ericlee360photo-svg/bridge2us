@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  max-width: 820px;
+  max-width: 100%;
   margin: 24px auto;
   color: #eaeef9;
   font-family: system-ui, -apple-system, Segoe UI, Roboto;
@@ -11,7 +11,7 @@
 /* Weekly schedule view - 7 columns */
 .ss-wrap[style*="repeat(7, 1fr)"] {
   grid-template-columns: repeat(7, 1fr);
-  max-width: 1200px;
+  max-width: 100%;
   gap: 8px;
 }
 
