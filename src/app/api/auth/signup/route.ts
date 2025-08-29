@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // First, create the user in Supabase Auth
-    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+    // First, create the user in Supabase Auth using admin client
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true, // Auto-confirm email for testing
@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
 
     console.log('Attempting to insert user profile data:', userData);
 
-    // Now insert the profile data using the auth user ID
-    const { data: user, error: userError } = await supabase
+    // Now insert the profile data using the auth user ID with admin client
+    const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .insert(userData)
       .select()
