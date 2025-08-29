@@ -122,21 +122,37 @@ export async function POST(request: NextRequest) {
 
     console.log('Attempting to insert user profile data:', userData);
 
-    // Temporarily disable RLS for user creation
-    console.log('Temporarily disabling RLS for user creation...');
+    // Use service role to insert profile data - RLS is bypassed automatically
+    console.log('Using service role to insert profile data (RLS bypassed)...');
     
-    // Try to disable RLS temporarily
-    await supabaseAdmin.rpc('exec_sql', { sql: 'ALTER TABLE users DISABLE ROW LEVEL SECURITY;' });
-    
-    // Now insert the profile data
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
-      .insert(userData)
+      .upsert({
+        id: authUser.user.id,
+        email: userData.email,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        birthday: userData.birthday,
+        email_verified: true,
+        email_verification_token: emailVerificationToken,
+        email_verification_expires: emailVerificationExpires.toISOString(),
+        timezone: userData.timezone || 'UTC',
+        address: userData.address || null,
+        country: userData.country || null,
+        language: userData.language || 'en',
+        is_address_public: userData.is_address_public || false,
+        wake_up_time: userData.wake_up_time || null,
+        bed_time: userData.bed_time || null,
+        work_start_time: userData.work_start_time || null,
+        work_end_time: userData.work_end_time || null,
+        gym_time: userData.gym_time || null,
+        school_time: userData.school_time || null,
+        measurement_system: userData.measurement_system || null,
+        temperature_unit: userData.temperature_unit || null,
+        distance_unit: userData.distance_unit || null
+      })
       .select()
       .single();
-    
-    // Re-enable RLS
-    await supabaseAdmin.rpc('exec_sql', { sql: 'ALTER TABLE users ENABLE ROW LEVEL SECURITY;' });
 
     if (userError) {
       console.error('Error creating user:', userError);

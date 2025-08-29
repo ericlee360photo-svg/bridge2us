@@ -191,3 +191,5 @@ CREATE POLICY "Users can view their own events" ON events FOR SELECT USING (auth
 CREATE POLICY "Users can create their own events" ON events FOR INSERT WITH CHECK (auth.uid()::text = user_id::text);
 CREATE POLICY "Users can update their own events" ON events FOR UPDATE USING (auth.uid()::text = user_id::text);
 CREATE POLICY "Users can delete their own events" ON events FOR DELETE USING (auth.uid()::text = user_id::text);
+
+
