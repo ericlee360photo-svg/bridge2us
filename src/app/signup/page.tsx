@@ -194,8 +194,8 @@ function SignupContent() {
   };
 
   const nextStep = () => {
-    // Validate interests on step 6 (before moving to step 7)
-    if (currentStep === 6 && signupData.interests.length < 5) {
+    // Validate interests on step 5 (before moving to step 6)
+    if (currentStep === 5 && signupData.interests.length < 5) {
       alert('Please select at least 5 interests before continuing.');
       return;
     }
@@ -1032,16 +1032,16 @@ function SignupContent() {
       <div className="text-center">
         <div className="flex items-center justify-center gap-2 mb-4">
           <Heart className="w-8 h-8 text-pink-500" />
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Welcome to Bridge2Us!</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Sign Up Complete!</h2>
         </div>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
-          Your account is ready! Let's get you started with your dashboard.
+          We'll set up your dashboard when your partner joins the journey.
         </p>
       </div>
 
       <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
         <p className="text-sm text-green-800 dark:text-green-200">
-          <strong>Account Created Successfully!</strong> You can now access your personalized dashboard and start connecting with your partner.
+          <strong>Account Created Successfully!</strong> Your profile is ready and waiting for your partner to join.
         </p>
       </div>
 
@@ -1075,6 +1075,16 @@ function SignupContent() {
             <div className="text-sm text-gray-600 dark:text-gray-400">Your interests have been saved for personalization</div>
           </div>
         </div>
+
+        <div className="flex items-center gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+          <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-sm">⏳</span>
+          </div>
+          <div>
+            <div className="font-medium text-gray-800 dark:text-gray-200">Waiting for Partner</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Your dashboard will be fully activated once your partner joins</div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1085,8 +1095,8 @@ function SignupContent() {
       case 2: return renderStep2();
       case 3: return renderStep3();
       case 4: return renderStep5(); // Skip step 4, go directly to preferences
-      case 5: return renderStep6(); // Partner invitation
-      case 6: return renderStep7(); // Interests
+      case 5: return renderStep7(); // Interests
+      case 6: return renderStep6(); // Partner invitation (moved to last)
       case 7: return renderStep8(); // Completion
       default: return renderStep1();
     }
