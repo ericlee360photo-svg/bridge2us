@@ -42,32 +42,7 @@ export default function Home(){
             </button>
           </div>
           
-          {/* Demo Button */}
-          <div className="mt-8 text-center">
-            <button
-              onClick={() => {
-                // Demo sign in for testing
-                const demoUser = {
-                  id: 'demo-user-1',
-                  firstName: 'Demo',
-                  lastName: 'User',
-                  email: 'demo@example.com',
-                  avatar: '',
-                  timezone: 'UTC',
-                  country: 'US',
-                  language: 'en'
-                };
-                localStorage.setItem('user', JSON.stringify(demoUser));
-                router.push('/dashboard');
-              }}
-              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-6 py-3 rounded-lg text-base font-semibold hover:from-yellow-600 hover:to-orange-700 transition-all duration-200 shadow-lg hover:shadow-xl border-2 border-yellow-400/30"
-            >
-              🚀 Try Demo Dashboard
-            </button>
-            <p className="text-sm text-gray-400 mt-2">
-              Experience Bridge2Us without signing up
-            </p>
-          </div>
+
         </div>
 
         {/* Features Section */}
