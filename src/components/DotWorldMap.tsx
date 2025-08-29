@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo } from "react";
 import { buildDots } from "../lib/dots";
 import { arcPath, haversineKm, kmToMi, project, worldHeight, worldWidth } from "../lib/geo";
@@ -60,7 +62,7 @@ function DotWorldMapComponent({
         aspectRatio: "2 / 1",
         borderRadius: 16,
         position: "relative",
-        zIndex: 1
+        zIndex: 0
       }}
       preserveAspectRatio="xMidYMid meet"
     >

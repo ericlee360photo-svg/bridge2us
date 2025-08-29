@@ -138,28 +138,6 @@ function SignInContent() {
               </div>
             </div>
 
-            {/* Demo Sign In Button */}
-            <button
-              onClick={() => {
-                // Demo sign in for testing
-                const demoUser = {
-                  id: 'demo-user-1',
-                  firstName: 'Demo',
-                  lastName: 'User',
-                  email: 'demo@example.com',
-                  avatar: '',
-                  timezone: 'UTC',
-                  country: 'US',
-                  language: 'en'
-                };
-                localStorage.setItem('user', JSON.stringify(demoUser));
-                router.push('/');
-              }}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium py-3 px-4 rounded-xl hover:from-pink-600 hover:to-purple-700 transition-colors"
-            >
-              Demo Sign In (for testing)
-            </button>
-
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -185,7 +163,7 @@ function SignInContent() {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2">
           <p>
             By signing in, you agree to our{" "}
             <a href="#" className="text-pink-600 hover:text-pink-700 dark:text-pink-400">
@@ -194,6 +172,14 @@ function SignInContent() {
             and{" "}
             <a href="#" className="text-pink-600 hover:text-pink-700 dark:text-pink-400">
               Privacy Policy
+            </a>
+          </p>
+          <p>
+            <a 
+              href="/forgot-password" 
+              className="text-pink-600 hover:text-pink-700 dark:text-pink-400 font-medium"
+            >
+              Forgot your password?
             </a>
           </p>
         </div>

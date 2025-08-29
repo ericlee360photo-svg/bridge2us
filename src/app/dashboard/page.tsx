@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, Settings, Grid, User, Music, Star, Calendar, FileText, Shield, Trash2, Save, Eye, EyeOff, AlertTriangle, ChevronDown, X } from "lucide-react";
+import { Heart, Settings, Grid, User, Music, Star, Calendar, FileText, Shield, Trash2, Save, Eye, EyeOff, AlertTriangle, ChevronDown, X, Lock, Key } from "lucide-react";
 import ProfilePictureUpload from "@/components/ProfilePictureUpload";
 import { getTimeUntil, getTimezoneDifference } from "@/lib/utils";
 import { haversineKm, kmToMi } from "@/lib/geo";
@@ -1433,6 +1433,7 @@ export default function DashboardPage() {
                   <nav className="space-y-2">
                     {[
                       { id: 'personal', label: 'Personal Info', icon: User },
+                      { id: 'security', label: 'Security', icon: Lock },
                       { id: 'sharing', label: 'Sharing', icon: Music },
                       { id: 'schedule', label: 'Schedule', icon: Calendar },
                       { id: 'layout', label: 'Layout', icon: Grid },
@@ -1650,6 +1651,126 @@ export default function DashboardPage() {
                               <option value="mi">Miles</option>
                               <option value="km">Kilometers</option>
                             </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Security Tab */}
+                  {userSettingsTab === 'security' && (
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Security Settings</h3>
+                      
+                      <div className="space-y-6">
+                        {/* Password Reset Section */}
+                        <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-6 bg-gray-50 dark:bg-gray-900/50">
+                          <div className="flex items-start gap-3 mb-4">
+                            <Key className="w-6 h-6 text-blue-600 mt-1" />
+                            <div className="flex-1">
+                              <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                                Password Management
+                              </h4>
+                              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                                Update your password to keep your account secure. You'll receive a reset link via email.
+                              </p>
+                              
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const response = await fetch('/api/auth/reset-password', {
+                                      method: 'POST',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                      },
+                                      body: JSON.stringify({ 
+                                        email: userSettings.email 
+                                      }),
+                                    });
+
+                                    const data = await response.json();
+
+                                    if (response.ok) {
+                                      alert('Password reset link sent! Check your email for instructions.');
+                                    } else {
+                                      alert(data.error || 'Failed to send reset link. Please try again.');
+                                    }
+                                  } catch (error) {
+                                    console.error('Password reset error:', error);
+                                    alert('Network error. Please try again.');
+                                  }
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                              >
+                                <Key className="w-4 h-4" />
+                                Send Password Reset Link
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Email Verification Section */}
+                        <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-6 bg-gray-50 dark:bg-gray-900/50">
+                          <div className="flex items-start gap-3 mb-4">
+                            <Lock className="w-6 h-6 text-green-600 mt-1" />
+                            <div className="flex-1">
+                              <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                                Email Verification
+                              </h4>
+                              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                                Verify your email address to enhance account security and receive important notifications.
+                              </p>
+                              
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const response = await fetch('/api/auth/verify-email', {
+                                      method: 'POST',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                      },
+                                      body: JSON.stringify({ 
+                                        email: userSettings.email 
+                                      }),
+                                    });
+
+                                    const data = await response.json();
+
+                                    if (response.ok) {
+                                      alert('Verification email sent! Check your inbox for the verification link.');
+                                    } else {
+                                      alert(data.error || 'Failed to send verification email. Please try again.');
+                                    }
+                                  } catch (error) {
+                                    console.error('Email verification error:', error);
+                                    alert('Network error. Please try again.');
+                                  }
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                              >
+                                <Lock className="w-4 h-4" />
+                                Send Verification Email
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Account Security Tips */}
+                        <div className="border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 bg-yellow-50 dark:bg-yellow-900/20">
+                          <div className="flex items-start gap-3">
+                            <AlertTriangle className="w-6 h-6 text-yellow-600 mt-1" />
+                            <div>
+                              <h4 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                                Security Tips
+                              </h4>
+                              <ul className="text-yellow-700 dark:text-yellow-300 space-y-1 text-sm">
+                                <li>• Use a strong, unique password</li>
+                                <li>• Enable two-factor authentication if available</li>
+                                <li>• Keep your email address up to date</li>
+                                <li>• Never share your login credentials</li>
+                                <li>• Log out from shared devices</li>
+                              </ul>
+                            </div>
                           </div>
                         </div>
                       </div>

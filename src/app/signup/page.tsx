@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar, ExternalLink, Copy } from "lucide-react";
+import { Heart, ArrowRight, ArrowLeft, Mail, Lock, User, MapPin, Calendar, ExternalLink, Copy, Target } from "lucide-react";
 import ProfilePictureUpload from "@/components/ProfilePictureUpload";
 import { DataStorage } from "@/lib/storage";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 import UsualWeekWizard from "@/weekscheduler/UsualWeekWizard";
 import "@/sharedschedule/schedule.css";
 import { useSearchParams } from "next/navigation";
+import InterestsSelector from "@/components/InterestsSelector";
 
 interface SignupData {
   // Step 1: Basic Info
@@ -53,6 +54,9 @@ interface SignupData {
   // Partner Invitation
   inviteMethod: 'url' | 'email';
   partnerInviteEmail: string;
+  
+  // Interests
+  interests: string[];
 }
 
 function SignupContent() {
@@ -90,7 +94,8 @@ function SignupContent() {
     agreeToTerms: false,
     distanceUnit: "mi",
     inviteMethod: "url",
-    partnerInviteEmail: ""
+    partnerInviteEmail: "",
+    interests: []
   });
 
   // Handle OAuth flow and invitation tokens
@@ -131,7 +136,7 @@ function SignupContent() {
     }
   }, [searchParams]);
 
-  const updateField = (field: keyof SignupData, value: string | boolean) => {
+  const updateField = (field: keyof SignupData, value: string | boolean | string[]) => {
     setSignupData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -182,7 +187,13 @@ function SignupContent() {
   };
 
   const nextStep = () => {
-    if (currentStep < 6) {
+    // Validate interests on step 6 (before moving to step 7)
+    if (currentStep === 6 && signupData.interests.length < 5) {
+      alert('Please select at least 5 interests before continuing.');
+      return;
+    }
+    
+    if (currentStep < 7) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -956,6 +967,34 @@ function SignupContent() {
     </div>
   );
 
+  const renderStep7 = () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Target className="w-8 h-8 text-pink-500" />
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Your Interests</h2>
+        </div>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          Help us personalize your experience by selecting your interests
+        </p>
+      </div>
+
+      <InterestsSelector
+        selectedInterests={signupData.interests}
+        onInterestsChange={(interests) => updateField('interests', interests)}
+        minSelections={5}
+        maxSelections={20}
+      />
+
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
+          <strong>Why we ask:</strong> Your interests help us suggest activities, events, and content that you and your partner might enjoy together. 
+          This information is used to personalize your dashboard and improve your experience.
+        </p>
+      </div>
+    </div>
+  );
+
   const renderStep = () => {
     switch (currentStep) {
       case 1: return renderStep1();
@@ -964,6 +1003,7 @@ function SignupContent() {
       case 4: return renderStep4();
       case 5: return renderStep5();
       case 6: return renderStep6();
+      case 7: return renderStep7();
       default: return renderStep1();
     }
   };
@@ -985,14 +1025,14 @@ function SignupContent() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
-            <span>Step {currentStep} of 6</span>
-            <span>{Math.round((currentStep / 6) * 100)}%</span>
+            <span>Step {currentStep} of 7</span>
+            <span>{Math.round((currentStep / 7) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / 6) * 100}%` }}
-            ></div>
+                          <div 
+                className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(currentStep / 7) * 100}%` }}
+              ></div>
           </div>
         </div>
 
@@ -1061,7 +1101,7 @@ function SignupContent() {
                 Next
                 <ArrowRight className="w-4 h-4" />
               </button>
-            ) : currentStep === 5 ? (
+            ) : currentStep === 7 ? (
               <button
                 onClick={handleCreateAccount}
                 disabled={!signupData.agreeToTerms}
