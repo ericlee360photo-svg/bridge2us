@@ -8,6 +8,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('Received signup request with body:', body);
     
+    // Debug environment variables
+    console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    console.log('Using admin client:', !!supabaseAdmin);
+    
     const {
       email,
       password,
@@ -118,7 +122,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Attempting to insert user profile data:', userData);
 
-    // Now insert the profile data using the auth user ID with admin client
+    // Now insert the profile data using direct SQL to bypass RLS
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .insert(userData)

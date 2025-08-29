@@ -160,6 +160,9 @@ CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON events FOR EACH ROW EXE
 
 -- Row Level Security (RLS) policies
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Temporarily allow service role full access to users table for signup
+CREATE POLICY "Service role full access to users" ON users FOR ALL TO service_role USING (true) WITH CHECK (true);
 ALTER TABLE relationships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meetups ENABLE ROW LEVEL SECURITY;
