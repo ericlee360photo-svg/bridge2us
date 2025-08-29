@@ -70,31 +70,33 @@ export async function POST(request: NextRequest) {
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Prepare user data for insert - only include fields that exist in the database schema
+    // Prepare user data for insert - start with minimal required fields only
     const userData = {
       email,
       first_name: firstName,
       last_name: lastName,
-      gender,
-      timezone: timezone || 'UTC',
-      address, // Only address exists, not city/state
-      country,
-      language: language || 'en',
-      is_address_public: isAddressPublic,
       birthday: new Date(birthday).toISOString(),
-      wake_up_time: wakeUpTime,
-      bed_time: bedTime,
-      work_start_time: workStartTime,
-      work_end_time: workEndTime,
-      gym_time: gymTime,
-      school_time: schoolTime,
-      measurement_system: measurementSystem,
-      temperature_unit: temperatureUnit,
-      distance_unit: distanceUnit,
       email_verified: true, // Bypass email verification for testing
       email_verification_token: emailVerificationToken,
       email_verification_expires: emailVerificationExpires.toISOString()
     };
+
+    // Add optional fields only if they exist and have values
+    if (gender) userData.gender = gender;
+    if (timezone) userData.timezone = timezone;
+    if (address) userData.address = address;
+    if (country) userData.country = country;
+    if (language) userData.language = language;
+    if (isAddressPublic !== undefined) userData.is_address_public = isAddressPublic;
+    if (wakeUpTime) userData.wake_up_time = wakeUpTime;
+    if (bedTime) userData.bed_time = bedTime;
+    if (workStartTime) userData.work_start_time = workStartTime;
+    if (workEndTime) userData.work_end_time = workEndTime;
+    if (gymTime) userData.gym_time = gymTime;
+    if (schoolTime) userData.school_time = schoolTime;
+    if (measurementSystem) userData.measurement_system = measurementSystem;
+    if (temperatureUnit) userData.temperature_unit = temperatureUnit;
+    if (distanceUnit) userData.distance_unit = distanceUnit;
 
     console.log('Attempting to insert user data:', userData);
 
