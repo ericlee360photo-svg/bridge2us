@@ -585,19 +585,44 @@ function SignupContent() {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Gender
           </label>
-          <select
-            value={signupData.gender}
-            onChange={(e) => updateField('gender', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-            required
-          >
-            <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="non-binary">Non-binary</option>
-            <option value="other">Other</option>
-            <option value="prefer-not-to-say">Prefer not to say</option>
-          </select>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="radio"
+                name="gender"
+                value="male"
+                checked={signupData.gender === "male"}
+                onChange={(e) => updateField('gender', e.target.value)}
+                className="w-4 h-4 text-pink-600 border-gray-300 focus:ring-pink-500"
+                required
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Male</span>
+            </label>
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="radio"
+                name="gender"
+                value="female"
+                checked={signupData.gender === "female"}
+                onChange={(e) => updateField('gender', e.target.value)}
+                className="w-4 h-4 text-pink-600 border-gray-300 focus:ring-pink-500"
+                required
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Female</span>
+            </label>
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="radio"
+                name="gender"
+                value="prefer-not-to-say"
+                checked={signupData.gender === "prefer-not-to-say"}
+                onChange={(e) => updateField('gender', e.target.value)}
+                className="w-4 h-4 text-pink-600 border-gray-300 focus:ring-pink-500"
+                required
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Prefer not to say</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
