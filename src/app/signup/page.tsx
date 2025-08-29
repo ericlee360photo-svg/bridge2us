@@ -214,13 +214,9 @@ function SignupContent() {
       return;
     }
     
-    // CRITICAL: Prevent bypassing terms agreement
+    // CRITICAL: Prevent bypassing terms agreement - NO AUTO-PROGRESSION
     if (currentStep === 6) {
-      if (!signupData.agreeToTerms) {
-        alert('You must agree to the Terms of Service to continue.');
-        return;
-      }
-      // Even if terms are agreed, don't auto-proceed - account creation handles that
+      alert('You must agree to the Terms of Service and click "Create Account" to continue.');
       return;
     }
     
@@ -241,14 +237,21 @@ function SignupContent() {
   };
 
   const handleCreateAccount = async () => {
-    // Validate terms agreement
+    // CRITICAL: Terms acceptance is MANDATORY for account creation
     if (!signupData.agreeToTerms) {
-      alert('You must agree to the Terms of Use to create an account.');
+      alert('You must agree to the Terms of Service to create an account. Please check the box and try again.');
       return;
     }
 
+    // Validate required fields
     if (!signupData.email || !signupData.password) {
       alert('Email and password are required.');
+      return;
+    }
+
+    // Validate interests are selected
+    if (signupData.interests.length < 5) {
+      alert('Please select at least 5 interests before creating your account.');
       return;
     }
 
@@ -1159,7 +1162,7 @@ function SignupContent() {
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Terms of Service</h2>
-        <p className="text-gray-600 dark:text-gray-300">Please review and agree to our terms before creating your account</p>
+        <p className="text-gray-600 dark:text-gray-300">You must agree to our terms to create your account</p>
       </div>
 
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 max-h-64 overflow-y-auto">
@@ -1219,6 +1222,15 @@ function SignupContent() {
           </Link>
         </div>
 
+        {/* Warning Message */}
+        {!signupData.agreeToTerms && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+            <p className="text-sm text-red-700 dark:text-red-300">
+              <strong>⚠️ Required:</strong> You must agree to the Terms of Service to create your account.
+            </p>
+          </div>
+        )}
+
         {/* Create Account Button */}
         <div className="pt-4 space-y-3">
           <button
@@ -1226,7 +1238,7 @@ function SignupContent() {
             disabled={!signupData.agreeToTerms}
             className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-pink-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Create Account & Continue
+            {signupData.agreeToTerms ? 'Create Account & Continue' : 'Agree to Terms to Continue'}
           </button>
           
           <button
