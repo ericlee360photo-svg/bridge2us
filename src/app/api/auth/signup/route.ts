@@ -63,8 +63,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // First, create the user in Supabase Auth
+    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Auto-confirm email for testing
+      user_metadata: {
+        first_name: firstName,
+        last_name: lastName
+      }
+    });
+
+    if (authError) {
+      console.error('Auth user creation error:', authError);
+      return NextResponse.json(
+        { error: `Failed to create auth user: ${authError.message}` },
+        { status: 400 }
+      );
+    }
+
+    console.log('Auth user created successfully:', authUser.user.id);
 
     // Generate email verification token
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
@@ -72,6 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare user data for insert - start with minimal required fields only
     const userData = {
+      id: authUser.user.id, // Use the auth user ID
       email,
       first_name: firstName,
       last_name: lastName,
@@ -97,9 +116,9 @@ export async function POST(request: NextRequest) {
     if (temperatureUnit) userData.temperature_unit = temperatureUnit;
     if (distanceUnit) userData.distance_unit = distanceUnit;
 
-    console.log('Attempting to insert user data:', userData);
+    console.log('Attempting to insert user profile data:', userData);
 
-    // Create user
+    // Now insert the profile data using the auth user ID
     const { data: user, error: userError } = await supabase
       .from('users')
       .insert(userData)

@@ -168,6 +168,7 @@ ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 -- Basic RLS policies (adjust based on your auth requirements)
 CREATE POLICY "Users can view their own profile" ON users FOR SELECT USING (auth.uid()::text = id::text);
 CREATE POLICY "Users can update their own profile" ON users FOR UPDATE USING (auth.uid()::text = id::text);
+CREATE POLICY "Allow user registration" ON users FOR INSERT WITH CHECK (true);
 
 -- For now, allow all operations for authenticated users (you can refine these later)
 CREATE POLICY "Authenticated users can view relationships" ON relationships FOR SELECT TO authenticated USING (true);
