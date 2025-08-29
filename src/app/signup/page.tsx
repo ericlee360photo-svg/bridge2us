@@ -106,7 +106,8 @@ function SignupContent() {
     
     if (isOAuth && oauthStep) {
       // Start at the specified step for OAuth users
-      setCurrentStep(parseInt(oauthStep));
+      const stepNumber = parseInt(oauthStep);
+      setCurrentStep(stepNumber);
       
       // Pre-fill data from localStorage if available
       const storedUser = localStorage.getItem('user');
@@ -127,6 +128,12 @@ function SignupContent() {
           console.error('Error parsing user data:', error);
         }
       }
+      
+      // For OAuth users, we need to create a user ID since they don't go through email/password
+      if (!userId) {
+        const tempUserId = `oauth-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        setUserId(tempUserId);
+      }
     }
 
     // Store invitation token if present
@@ -134,7 +141,7 @@ function SignupContent() {
       localStorage.setItem('pendingInvitation', invitationToken);
       console.log('Invitation token stored:', invitationToken);
     }
-  }, [searchParams]);
+  }, [searchParams, userId]);
 
   const updateField = (field: keyof SignupData, value: string | boolean | string[]) => {
     setSignupData(prev => ({ ...prev, [field]: value }));
@@ -361,7 +368,32 @@ function SignupContent() {
       language: signupData.language
     };
     
-    localStorage.setItem('user', JSON.stringify(userData));
+    // Save user settings and preferences
+    await DataStorage.setUser(userData);
+    await DataStorage.setUserSettings(userData.id, {
+      firstName: signupData.firstName,
+      lastName: signupData.lastName,
+      email: signupData.email,
+      birthday: signupData.birthday,
+      timezone: signupData.timezone || "UTC",
+      country: signupData.country,
+      language: signupData.language || "en",
+      avatar: signupData.avatar,
+      timeFormat: signupData.timeFormat,
+      measurementSystem: signupData.measurementSystem,
+      temperatureUnit: signupData.temperatureUnit,
+      distanceUnit: signupData.distanceUnit,
+      spotifySharing: true,
+      horoscopeSharing: true,
+      showHoroscope: true,
+      shareHoroscope: true,
+      weeklySchedule: {}
+    });
+    
+    // Save interests
+    if (signupData.interests.length > 0) {
+      await DataStorage.setData('userInterests', signupData.interests);
+    }
     
     // Redirect to dashboard
     router.push('/dashboard');
@@ -995,15 +1027,67 @@ function SignupContent() {
     </div>
   );
 
+  const renderStep8 = () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Heart className="w-8 h-8 text-pink-500" />
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Welcome to Bridge2Us!</h2>
+        </div>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          Your account is ready! Let's get you started with your dashboard.
+        </p>
+      </div>
+
+      <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+        <p className="text-sm text-green-800 dark:text-green-200">
+          <strong>Account Created Successfully!</strong> You can now access your personalized dashboard and start connecting with your partner.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-sm">✓</span>
+          </div>
+          <div>
+            <div className="font-medium text-gray-800 dark:text-gray-200">Profile Complete</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Your profile has been set up with all your preferences</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-sm">✓</span>
+          </div>
+          <div>
+            <div className="font-medium text-gray-800 dark:text-gray-200">Schedule Configured</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Your weekly schedule has been set up</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-sm">✓</span>
+          </div>
+          <div>
+            <div className="font-medium text-gray-800 dark:text-gray-200">Interests Added</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Your interests have been saved for personalization</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderStep = () => {
     switch (currentStep) {
       case 1: return renderStep1();
       case 2: return renderStep2();
       case 3: return renderStep3();
-      case 4: return renderStep4();
-      case 5: return renderStep5();
-      case 6: return renderStep6();
-      case 7: return renderStep7();
+      case 4: return renderStep5(); // Skip step 4, go directly to preferences
+      case 5: return renderStep6(); // Partner invitation
+      case 6: return renderStep7(); // Interests
+      case 7: return renderStep8(); // Completion
       default: return renderStep1();
     }
   };
@@ -1029,10 +1113,10 @@ function SignupContent() {
             <span>{Math.round((currentStep / 7) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div 
-                className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(currentStep / 7) * 100}%` }}
-              ></div>
+            <div 
+              className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / 7) * 100}%` }}
+            ></div>
           </div>
         </div>
 
@@ -1093,21 +1177,12 @@ function SignupContent() {
               Previous
             </button>
 
-            {currentStep < 4 ? (
+            {currentStep < 7 ? (
               <button
                 onClick={nextStep}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors"
               >
                 Next
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            ) : currentStep === 7 ? (
-              <button
-                onClick={handleCreateAccount}
-                disabled={!signupData.agreeToTerms}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Create Account
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (

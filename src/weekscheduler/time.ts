@@ -1,12 +1,12 @@
 import { startOfWeek, addDays, addMinutes } from 'date-fns';
-import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { toZonedTime, utcToZonedTime } from 'date-fns-tz';
 import type { WeekBlock } from './types';
 
 // return Monday 00:00 for a given date in tzA (or Sunday, your choice)
 export function getWeekStart(date: Date, tzA: string): Date {
   // Get Monday of the week in the specified timezone
   const weekStart = startOfWeek(date, { weekStartsOn: 1 }); // Monday = 1
-  return zonedTimeToUtc(weekStart, tzA);
+  return toZonedTime(weekStart, tzA);
 }
 
 // clip block to day bounds, split if needed
