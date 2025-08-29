@@ -1,18 +1,29 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase, supabaseAdmin } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
+    // Fail fast if envs are missing
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !serviceKey) {
+      console.error('Missing Supabase environment variables');
+      return NextResponse.json(
+        { error: "Supabase env vars missing" },
+        { status: 500 }
+      );
+    }
+
+    // Create service role client directly in the route
+    const supabase = createClient(url, serviceKey);
+    
     const body = await request.json();
     console.log('Received signup request with body:', body);
-    
-    // Debug environment variables
-    console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
-    console.log('SUPABASE_SERVICE_ROLE_KEY length:', process.env.SUPABASE_SERVICE_ROLE_KEY?.length);
-    console.log('Using admin client:', !!supabaseAdmin);
-    console.log('Admin client URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
     
     const {
       email,
@@ -69,8 +80,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // First, create the user in Supabase Auth using admin client
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    // First, create the user in Supabase Auth using service role client
+    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
       email_confirm: true, // Auto-confirm email for testing
@@ -124,12 +135,12 @@ export async function POST(request: NextRequest) {
 
     console.log('Attempting to insert user profile data:', userData);
 
-    // Try direct SQL insertion to completely bypass RLS
-    console.log('Using direct SQL insertion to completely bypass RLS...');
+    // Upsert into users table - service role bypasses RLS
+    console.log('Upserting user profile with service role (RLS bypassed)...');
     
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: user, error: userError } = await supabase
       .from('users')
-      .insert({
+      .upsert({
         id: authUser.user.id,
         email: userData.email,
         first_name: userData.first_name,
@@ -152,7 +163,7 @@ export async function POST(request: NextRequest) {
         measurement_system: userData.measurement_system || null,
         temperature_unit: userData.temperature_unit || null,
         distance_unit: userData.distance_unit || null
-      })
+      }, { onConflict: 'id' })
       .select()
       .single();
 
