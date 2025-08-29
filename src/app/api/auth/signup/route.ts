@@ -81,8 +81,7 @@ export async function POST(request: NextRequest) {
       email_verification_expires: emailVerificationExpires.toISOString()
     };
 
-    // Add optional fields only if they exist and have values
-    if (gender) userData.gender = gender;
+    // Add optional fields only if they exist and have values - exclude gender for now due to schema cache issues
     if (timezone) userData.timezone = timezone;
     if (address) userData.address = address;
     if (country) userData.country = country;
@@ -113,7 +112,6 @@ export async function POST(request: NextRequest) {
         email,
         firstName,
         lastName,
-        gender,
         birthday,
         timezone,
         address,
