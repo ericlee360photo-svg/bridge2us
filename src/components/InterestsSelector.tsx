@@ -153,8 +153,7 @@ export default function InterestsSelector({
                     : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-pink-300 dark:hover:border-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/10 hover:scale-105'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{interest.emoji}</span>
+                <div className="flex items-center">
                   <span className="text-sm font-medium">{interest.label}</span>
                 </div>
                 {isSelected && (
