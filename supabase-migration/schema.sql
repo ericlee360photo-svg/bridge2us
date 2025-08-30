@@ -192,4 +192,28 @@ CREATE POLICY "Users can create their own events" ON events FOR INSERT WITH CHEC
 CREATE POLICY "Users can update their own events" ON events FOR UPDATE USING (auth.uid()::text = user_id::text);
 CREATE POLICY "Users can delete their own events" ON events FOR DELETE USING (auth.uid()::text = user_id::text);
 
+-- Debug logging system for user inserts
+CREATE TABLE IF NOT EXISTS public.debug_insert_log(
+  at timestamptz DEFAULT now(),
+  role text,
+  uid uuid,
+  note text
+);
+-- no RLS on this helper table
 
+CREATE OR REPLACE FUNCTION public.log_users_insert()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  INSERT INTO public.debug_insert_log(role, uid, note)
+  VALUES (
+    current_setting('request.jwt.claim.role', true), -- 'anon' | 'authenticated' | 'service_role'
+    auth.uid(),
+    'attempt insert into public.users'
+  );
+  RETURN new;
+END; $$;
+
+DROP TRIGGER IF EXISTS log_users_insert ON public.users;
+CREATE TRIGGER log_users_insert
+BEFORE INSERT ON public.users
+FOR EACH ROW EXECUTE PROCEDURE public.log_users_insert();
