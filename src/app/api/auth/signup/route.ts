@@ -59,6 +59,14 @@ export async function POST(request: NextRequest) {
       .eq('email', email)
       .single();
 
+    if (userCheckError && userCheckError.code !== 'PGRST116') {
+      console.error('Error checking existing user:', userCheckError);
+      return NextResponse.json(
+        { error: 'Failed to check existing user' },
+        { status: 500 }
+      );
+    }
+
     if (existingUser) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
@@ -103,7 +111,8 @@ export async function POST(request: NextRequest) {
       email_verification_expires: emailVerificationExpires.toISOString()
     };
 
-    // Add optional fields only if they exist and have values - exclude gender for now due to schema cache issues
+    // Add optional fields only if they exist and have values
+    if (gender) userData.gender = gender;
     if (timezone) userData.timezone = timezone;
     if (address) userData.address = address;
     if (country) userData.country = country;
@@ -127,6 +136,11 @@ export async function POST(request: NextRequest) {
     // Debug: Check what client we're using
     console.log('Using supabaseAdmin client:', !!supabaseAdmin);
     console.log('Service role key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    console.log('Environment variables available:', {
+      hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length
+    });
     
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
@@ -135,6 +149,7 @@ export async function POST(request: NextRequest) {
         email: userData.email,
         first_name: userData.first_name,
         last_name: userData.last_name,
+        gender: userData.gender || null,
         birthday: userData.birthday,
         email_verified: true,
         email_verification_token: emailVerificationToken,
@@ -159,6 +174,12 @@ export async function POST(request: NextRequest) {
 
     if (userError) {
       console.error('Error creating user:', userError);
+      console.error('Error details:', {
+        code: userError.code,
+        message: userError.message,
+        details: userError.details,
+        hint: userError.hint
+      });
       console.error('User data that failed:', {
         email,
         firstName,
@@ -168,7 +189,8 @@ export async function POST(request: NextRequest) {
         address,
         country,
         language,
-        isAddressPublic
+        isAddressPublic,
+        gender
       });
       return NextResponse.json(
         { error: `Failed to create user: ${userError.message}` },
