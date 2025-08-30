@@ -124,6 +124,10 @@ export async function POST(request: NextRequest) {
     // Upsert into users table - service role bypasses RLS
     console.log('Upserting user profile with service role (RLS bypassed)...');
     
+    // Debug: Check what client we're using
+    console.log('Using supabaseAdmin client:', !!supabaseAdmin);
+    console.log('Service role key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .upsert({
