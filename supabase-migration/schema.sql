@@ -168,11 +168,16 @@ ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meetups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 
--- Basic RLS policies (adjust based on your auth requirements)
-CREATE POLICY "Users can view their own profile" ON users FOR SELECT USING (auth.uid()::text = id::text);
-CREATE POLICY "Users can update their own profile" ON users FOR UPDATE USING (auth.uid()::text = id::text);
-CREATE POLICY "Allow user registration" ON users FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY "Allow service role to insert users" ON users FOR INSERT TO service_role WITH CHECK (true);
+-- Proper RLS policies for users table
+DROP POLICY IF EXISTS "Allow user registration" ON public.users;
+CREATE POLICY "self_insert" ON public.users
+FOR INSERT TO authenticated
+WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
+CREATE POLICY "self_select" ON public.users FOR SELECT TO authenticated USING (auth.uid() = id);
+CREATE POLICY "self_update" ON public.users FOR UPDATE TO authenticated USING (auth.uid() = id);
 
 -- For now, allow all operations for authenticated users (you can refine these later)
 CREATE POLICY "Authenticated users can view relationships" ON relationships FOR SELECT TO authenticated USING (true);
@@ -192,26 +197,36 @@ CREATE POLICY "Users can create their own events" ON events FOR INSERT WITH CHEC
 CREATE POLICY "Users can update their own events" ON events FOR UPDATE USING (auth.uid()::text = user_id::text);
 CREATE POLICY "Users can delete their own events" ON events FOR DELETE USING (auth.uid()::text = user_id::text);
 
--- Debug logging system for user inserts
-CREATE TABLE IF NOT EXISTS public.debug_insert_log(
+-- Enhanced debug logging system for user inserts
+DROP TABLE IF EXISTS public.debug_insert_log;
+CREATE TABLE public.debug_insert_log (
   at timestamptz DEFAULT now(),
-  role text,
-  uid uuid,
+  db_role text,                 -- actual Postgres role (service_role/authenticated/anon)
+  jwt_role text,                -- request.jwt.claim.role (may be null for service_key calls)
+  jwt_uid uuid,                 -- auth.uid() (null for service_key)
+  jwt_claims jsonb,             -- full claims if present
   note text
 );
 -- no RLS on this helper table
 
 CREATE OR REPLACE FUNCTION public.log_users_insert()
-RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
-  INSERT INTO public.debug_insert_log(role, uid, note)
+  INSERT INTO public.debug_insert_log(db_role, jwt_role, jwt_uid, jwt_claims, note)
   VALUES (
-    current_setting('request.jwt.claim.role', true), -- 'anon' | 'authenticated' | 'service_role'
-    auth.uid(),
+    current_user,                                        -- <-- actual DB role
+    current_setting('request.jwt.claim.role', true),     -- may be null
+    auth.uid(),                                          -- may be null
+    nullif(current_setting('request.jwt.claims', true), '')::jsonb,
     'attempt insert into public.users'
   );
   RETURN new;
-END; $$;
+END;
+$$;
 
 DROP TRIGGER IF EXISTS log_users_insert ON public.users;
 CREATE TRIGGER log_users_insert
