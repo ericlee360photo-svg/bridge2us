@@ -2,26 +2,12 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    // Fail fast if envs are missing
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !serviceKey) {
-      console.error('Missing Supabase environment variables');
-      return NextResponse.json(
-        { error: "Supabase env vars missing" },
-        { status: 500 }
-      );
-    }
-
-    // Create service role client directly in the route
-    const supabase = createClient(url, serviceKey);
-    
     const body = await request.json();
     console.log('Received signup request with body:', body);
     
@@ -81,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
 
     // First, create the user in Supabase Auth using service role client
-    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true, // Auto-confirm email for testing
@@ -138,7 +124,7 @@ export async function POST(request: NextRequest) {
     // Upsert into users table - service role bypasses RLS
     console.log('Upserting user profile with service role (RLS bypassed)...');
     
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .upsert({
         id: authUser.user.id,
@@ -189,7 +175,7 @@ export async function POST(request: NextRequest) {
     // Create relationship if partner email is provided
     if (partnerEmail) {
       // Check if partner already exists
-      const { data: partner, error: partnerError } = await supabase
+      const { data: partner, error: partnerError } = await supabaseAdmin
         .from('users')
         .select('id')
         .eq('email', partnerEmail)
@@ -197,7 +183,7 @@ export async function POST(request: NextRequest) {
 
       if (partner) {
         // Create relationship immediately
-        const { error: relationshipError } = await supabase
+        const { error: relationshipError } = await supabaseAdmin
           .from('relationships')
           .insert({
             user1_id: user.id,
@@ -216,7 +202,7 @@ export async function POST(request: NextRequest) {
       } else {
         // Create invitation for partner
         const invitationToken = crypto.randomBytes(32).toString('hex');
-        const { error: invitationError } = await supabase
+        const { error: invitationError } = await supabaseAdmin
           .from('invitations')
           .insert({
             sender_id: user.id,
