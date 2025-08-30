@@ -1,5 +1,8 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { sendEmailServer, emailTemplates } from '../../../../../lib/emailServer';
 import crypto from 'crypto';
 
@@ -15,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, first_name')
       .eq('email', email)
@@ -33,7 +36,7 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     // Store reset token
-    const { error: tokenError } = await supabase
+    const { error: tokenError } = await supabaseAdmin
       .from('password_reset_tokens')
       .upsert({
         user_id: user.id,
@@ -92,7 +95,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Find and validate token
-    const { data: tokenData, error: tokenError } = await supabase
+    const { data: tokenData, error: tokenError } = await supabaseAdmin
       .from('password_reset_tokens')
       .select('user_id, expires_at')
       .eq('token', token)

@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const { data: existingUser, error: userCheckError } = await supabase
+    const { data: existingUser, error: userCheckError } = await supabaseAdmin
       .from('users')
       .select('email')
       .eq('email', email)

@@ -1,5 +1,8 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { sendEmailServer, emailTemplates } from '../../../../../lib/emailServer';
 import crypto from 'crypto';
 
@@ -15,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, first_name, email_verified')
       .eq('email', email)
