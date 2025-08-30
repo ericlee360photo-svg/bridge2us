@@ -160,24 +160,31 @@ CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON events FOR EACH ROW EXE
 
 -- Row Level Security (RLS) policies
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
--- Temporarily allow service role full access to users table for signup
-CREATE POLICY "Service role full access to users" ON users FOR ALL TO service_role USING (true) WITH CHECK (true);
 ALTER TABLE relationships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meetups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 
--- Proper RLS policies for users table
-DROP POLICY IF EXISTS "Allow user registration" ON public.users;
-CREATE POLICY "self_insert" ON public.users
-FOR INSERT TO authenticated
+-- Service role should have full access to all operations
+CREATE POLICY "service_role_all" ON users 
+FOR ALL TO service_role 
+USING (true) 
+WITH CHECK (true);
+
+-- Authenticated users can insert their own profile
+CREATE POLICY "authenticated_insert_own" ON users 
+FOR INSERT TO authenticated 
 WITH CHECK (auth.uid() = id);
 
-DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
-DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
-CREATE POLICY "self_select" ON public.users FOR SELECT TO authenticated USING (auth.uid() = id);
-CREATE POLICY "self_update" ON public.users FOR UPDATE TO authenticated USING (auth.uid() = id);
+-- Authenticated users can view their own profile
+CREATE POLICY "authenticated_select_own" ON users 
+FOR SELECT TO authenticated 
+USING (auth.uid() = id);
+
+-- Authenticated users can update their own profile
+CREATE POLICY "authenticated_update_own" ON users 
+FOR UPDATE TO authenticated 
+USING (auth.uid() = id);
 
 -- For now, allow all operations for authenticated users (you can refine these later)
 CREATE POLICY "Authenticated users can view relationships" ON relationships FOR SELECT TO authenticated USING (true);

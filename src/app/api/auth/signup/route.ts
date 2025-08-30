@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Add optional fields only if they exist and have values
-    if (gender) userData.gender = gender;
+    // Note: gender field removed due to schema cache issues
     if (timezone) userData.timezone = timezone;
     if (address) userData.address = address;
     if (country) userData.country = country;
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
         email: userData.email,
         first_name: userData.first_name,
         last_name: userData.last_name,
-        gender: userData.gender || null,
+        // gender: userData.gender || null, // Removed due to schema cache issues
         birthday: userData.birthday,
         email_verified: true,
         email_verification_token: emailVerificationToken,
@@ -189,8 +189,8 @@ export async function POST(request: NextRequest) {
         address,
         country,
         language,
-        isAddressPublic,
-        gender
+        isAddressPublic
+        // gender // Removed due to schema cache issues
       });
       return NextResponse.json(
         { error: `Failed to create user: ${userError.message}` },
