@@ -64,7 +64,7 @@ npm install
 
 3. Set up environment variables:
 ```bash
-# Create a .env file with the following variables:
+# Create a .env.local file with the following variables:
 DATABASE_URL="file:./dev.db"
 NEXTAUTH_SECRET="your-nextauth-secret-key-here"
 NEXTAUTH_URL="http://localhost:3000"
@@ -79,7 +79,7 @@ NEXT_PUBLIC_SOCKET_URL="http://localhost:3001"
    - Enable the Google+ API
    - Go to "Credentials" and create an OAuth 2.0 Client ID
    - Add `http://localhost:3000/api/auth/callback/google` to authorized redirect URIs
-   - Copy the Client ID and Client Secret to your `.env` file
+   - Copy the Client ID and Client Secret to your `.env.local` file
 
 5. Set up the database:
 ```bash

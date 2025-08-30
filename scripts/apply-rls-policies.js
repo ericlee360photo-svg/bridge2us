@@ -1,5 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 
 async function applyRLSPolicies() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

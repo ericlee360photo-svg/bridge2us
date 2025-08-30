@@ -1,5 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 
 async function applyDebugLogging() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
